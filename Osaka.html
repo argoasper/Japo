@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Osaka</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#b3452e; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+/* city accent colours, applied via [data-city] on panel */
+[data-city="tokyo"]{--accent:#b3452e}
+[data-city="kyoto"]{--accent:#8c332b}
+[data-city="osaka"]{--accent:#c2410c}
+
+.tabs{display:flex;gap:6px;margin:14px 0 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);z-index:30;padding-top:4px}
+.tabbtn{font:inherit;font-weight:750;border:none;background:transparent;color:var(--muted);padding:10px 14px;border-radius:10px 10px 0 0;cursor:pointer;border-bottom:3px solid transparent}
+.tabbtn:hover{color:var(--text)}
+.tabbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.panel-body{display:none}
+.panel-body.active{display:block}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:2px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem}
+
+.toolbar{position:sticky;top:48px;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Japó 2026 · guia interactiva autosuficient</div>
+<h1>🐙 Itinerari Osaka</h1>
+<p class="subtitle">Itinerari interactiu autosuficient de Osaka, extret del document conjunt de Tòquio · Kyoto · Osaka (mateix format i funcionalitats: cerca, filtres, ruta completa a Google Maps i seguiment de llocs visitats).</p>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tabbtn active" data-city="osaka">🐙 Osaka</button>
+</nav>
+
+<div id="panels"></div>
+
+<footer>Generat combinant els tres itineraris originals de Tòquio, Kyoto i Osaka en un sol document autosuficient (sense connexió a internet necessària per consultar-lo). Verifiqueu horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">{"osaka":{"groups":[{"id":"o1","label":"Dia 1 · Castell, Tenma, Nakanoshima i Umeda"},{"id":"o2","label":"Dia 2 · Tennoji, Shinsekai, Sumiyoshi i Abeno"},{"id":"o3","label":"Dia 3 · Namba, Dotonbori, Shinsaibashi i America-mura"},{"id":"o4","label":"Dia 4 opcional · Badia, Expo, Minoo, Sakai i museus"}],"places":[{"id":"p1","group":"o1","order":0,"name":"Castell d’Osaka i parc","cat":"Monument","tags":["Monument","Castell/Chuo"],"desc":"Castell reconstruït amb parc, jardins, cirerers/ciruelers i bones vistes.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 h 30 - 2 h","notes":"Si vas just de temps, prioritza exterior i jardins.","apple":"https://maps.apple.com/?q=Osaka+Castle","google":"https://maps.google.com/?q=Osaka+Castle","wiki":null},{"id":"p2","group":"o1","order":1,"name":"Santuari Osaka Tenmangu","cat":"Santuari","tags":["Santuari","Tenma"],"desc":"Santuari dedicat a Tenjin, molt local i bonic, especialment amb ciruelers en flor.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-45 min","notes":"Combina amb Tenjinbashi-suji.","apple":"https://maps.apple.com/?q=Osaka+Tenmangu+Shrine","google":"https://maps.google.com/?q=Osaka+Tenmangu+Shrine","wiki":null},{"id":"p3","group":"o1","order":2,"name":"Tenjinbashi-suji Shotengai","cat":"Compres/menjar","tags":["Compres/menjar","Tenma"],"desc":"Galeria comercial coberta llarguíssima amb botigues locals, menjar, te i ceràmica.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 2 h","notes":"Ideal per picar i veure vida quotidiana.","apple":"https://maps.apple.com/?q=Tenjinbashi-suji+Shopping+Street+Osaka","google":"https://maps.google.com/?q=Tenjinbashi-suji+Shopping+Street+Osaka","wiki":null},{"id":"p4","group":"o1","order":3,"name":"Nakanoshima","cat":"Passeig/cultura","tags":["Passeig/cultura","Nakanoshima"],"desc":"Illa fluvial amb ajuntament, biblioteca, auditori, Museu de Ceràmica Oriental i roserar.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45 min - 1 h 30","notes":"Bona a primavera/tardor i amb il·luminacions.","apple":"https://maps.apple.com/?q=Nakanoshima+Osaka","google":"https://maps.google.com/?q=Nakanoshima+Osaka","wiki":null},{"id":"p5","group":"o1","order":4,"name":"HEP FIVE i nòria","cat":"Mirador/compres","tags":["Mirador/compres","Umeda"],"desc":"Centre comercial d’Umeda amb nòria vermella sobre l’edifici.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-45 min","notes":"Popular com a lloc de cites.","apple":"https://maps.apple.com/?q=HEP+FIVE+Ferris+Wheel+Osaka","google":"https://maps.google.com/?q=HEP+FIVE+Ferris+Wheel+Osaka","wiki":null},{"id":"p6","group":"o1","order":5,"name":"Gate Tower Building","cat":"Arquitectura","tags":["Arquitectura","Umeda/Fukushima"],"desc":"Edifici famós perquè una autopista el travessa.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"10-20 min","notes":"Parada curta i fotogènica.","apple":"https://maps.apple.com/?q=Gate+Tower+Building+Osaka","google":"https://maps.google.com/?q=Gate+Tower+Building+Osaka","wiki":null},{"id":"p7","group":"o1","order":6,"name":"Umeda Sky Building","cat":"Mirador","tags":["Mirador","Umeda"],"desc":"Edifici icònic amb mirador exterior Kuchu Teien i escales mecàniques suspeses.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Millor al capvespre; als baixos hi ha Takimi Koji.","apple":"https://maps.apple.com/?q=Umeda+Sky+Building","google":"https://maps.google.com/?q=Umeda+Sky+Building","wiki":null},{"id":"p8","group":"o1","order":7,"name":"Osaka Station City / Big Man","cat":"Transport/menjar","tags":["Transport/menjar","Umeda"],"desc":"Gran complex ferroviari i comercial; Big Man és punt de trobada local.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45 min - 1 h 30","notes":"Excel·lent per sopar.","apple":"https://maps.apple.com/?q=Osaka+Station+City+Big+Man+Osaka","google":"https://maps.google.com/?q=Osaka+Station+City+Big+Man+Osaka","wiki":null},{"id":"p9","group":"o1","order":8,"name":"551 Horai","cat":"Snack","tags":["Snack","Umeda/Namba"],"desc":"Cadena famosa pels butaman, panets farcits de porc típics d’Osaka.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"10-20 min","notes":"També a Namba i Shin-Osaka.","apple":"https://maps.apple.com/?q=551+Horai+Osaka+Station","google":"https://maps.google.com/?q=551+Horai+Osaka+Station","wiki":null},{"id":"p10","group":"o1","order":9,"name":"Negiyaki Yamamoto","cat":"Restaurant","tags":["Restaurant","Umeda"],"desc":"Restaurant/cadena de negiyaki, variant local tipus okonomiyaki amb molta ceba tendra.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"Molt bé amb cervesa.","apple":"https://maps.apple.com/?q=Negiyaki+Yamamoto+Umeda+Osaka","google":"https://maps.google.com/?q=Negiyaki+Yamamoto+Umeda+Osaka","wiki":null},{"id":"p11","group":"o2","order":10,"name":"Santuari Imamiya Ebisu","cat":"Santuari","tags":["Santuari","Namba/Shinsekai"],"desc":"Santuari dedicat a Ebisu, prosperitat i negocis.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"20-40 min","notes":"Molt viu durant l’Ebisu Matsuri al gener.","apple":"https://maps.apple.com/?q=Imamiya+Ebisu+Shrine+Osaka","google":"https://maps.google.com/?q=Imamiya+Ebisu+Shrine+Osaka","wiki":null},{"id":"p12","group":"o2","order":11,"name":"Temple Isshinji","cat":"Temple","tags":["Temple","Tennoji"],"desc":"Temple budista amb porta moderna i estàtues relacionades amb cendres de fidels.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-45 min","notes":"Contrast arquitectònic interessant.","apple":"https://maps.apple.com/?q=Isshinji+Temple+Osaka","google":"https://maps.google.com/?q=Isshinji+Temple+Osaka","wiki":null},{"id":"p13","group":"o2","order":12,"name":"Temple Shitennoji","cat":"Temple","tags":["Temple","Tennoji"],"desc":"Un dels temples budistes més antics del Japó, amb pagoda i complex ampli.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Ambient local i poc massificat.","apple":"https://maps.apple.com/?q=Shitennoji+Temple+Osaka","google":"https://maps.google.com/?q=Shitennoji+Temple+Osaka","wiki":null},{"id":"p14","group":"o2","order":13,"name":"Santuari Horikoshi","cat":"Santuari","tags":["Santuari","Tennoji"],"desc":"Petit santuari històric i tranquil de Tennoji.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"15-25 min","notes":"Parada curta cap al parc.","apple":"https://maps.apple.com/?q=Horikoshi+Shrine+Osaka","google":"https://maps.google.com/?q=Horikoshi+Shrine+Osaka","wiki":null},{"id":"p15","group":"o2","order":14,"name":"Parc Tennoji","cat":"Parc","tags":["Parc","Tennoji"],"desc":"Pulmó verd del barri, amb jardí, museu i zoo.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-60 min","notes":"El zoo és opcional.","apple":"https://maps.apple.com/?q=Tennoji+Park+Osaka","google":"https://maps.google.com/?q=Tennoji+Park+Osaka","wiki":null},{"id":"p16","group":"o2","order":15,"name":"Shinsekai","cat":"Barri/menjar","tags":["Barri/menjar","Shinsekai"],"desc":"Barri retrofuturista ple de neons, restaurants populars i ambient Osaka.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 2 h","notes":"Zona ideal per kushikatsu.","apple":"https://maps.apple.com/?q=Shinsekai+Osaka","google":"https://maps.google.com/?q=Shinsekai+Osaka","wiki":null},{"id":"p17","group":"o2","order":16,"name":"Torre Tsutenkaku","cat":"Mirador","tags":["Mirador","Shinsekai"],"desc":"Torre icònica i símbol retro de Shinsekai.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"Vistes correctes però lloc amb molt caràcter.","apple":"https://maps.apple.com/?q=Tsutenkaku+Tower+Osaka","google":"https://maps.google.com/?q=Tsutenkaku+Tower+Osaka","wiki":null},{"id":"p18","group":"o2","order":17,"name":"Kushikatsu Daruma / kushikatsu","cat":"Restaurant","tags":["Restaurant","Shinsekai"],"desc":"Broquetes arrebossades típiques d’Osaka.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"No mullis dues vegades a la salsa compartida.","apple":"https://maps.apple.com/?q=Kushikatsu+Daruma+Shinsekai+Osaka","google":"https://maps.google.com/?q=Kushikatsu+Daruma+Shinsekai+Osaka","wiki":null},{"id":"p19","group":"o2","order":18,"name":"Spa World","cat":"Banys/activitat","tags":["Banys/activitat","Shinsekai"],"desc":"Complex urbà de banys, onsen i parc aquàtic.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"2 - 4 h","notes":"Opcional per relax.","apple":"https://maps.apple.com/?q=Spa+World+Osaka","google":"https://maps.google.com/?q=Spa+World+Osaka","wiki":null},{"id":"p20","group":"o2","order":19,"name":"Santuari Sumiyoshi Taisha","cat":"Santuari","tags":["Santuari","Sumiyoshi"],"desc":"Un dels santuaris més bonics i importants d’Osaka, amb pont Sorihashi.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Molt recomanat als arxius.","apple":"https://maps.apple.com/?q=Sumiyoshi+Taisha+Osaka","google":"https://maps.google.com/?q=Sumiyoshi+Taisha+Osaka","wiki":null},{"id":"p21","group":"o2","order":20,"name":"Tramvia Hankai","cat":"Transport","tags":["Transport","Sumiyoshi/Tennoji"],"desc":"Antic tramvia d’Osaka, experiència quotidiana entre Sumiyoshi i Tennoji.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"20-40 min","notes":"Finestra a una Osaka més local.","apple":"https://maps.apple.com/?q=Hankai+Tramway+Sumiyoshi+Osaka","google":"https://maps.google.com/?q=Hankai+Tramway+Sumiyoshi+Osaka","wiki":null},{"id":"p22","group":"o2","order":21,"name":"Abeno Harukas","cat":"Mirador","tags":["Mirador","Tennoji/Abeno"],"desc":"Gratacel de 300 m amb mirador espectacular sobre Osaka.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Millor a la tarda-vespre.","apple":"https://maps.apple.com/?q=Abeno+Harukas+Osaka","google":"https://maps.google.com/?q=Abeno+Harukas+Osaka","wiki":null},{"id":"p23","group":"o3","order":22,"name":"Santuari Namba Yasaka","cat":"Santuari","tags":["Santuari","Namba"],"desc":"Santuari conegut pel gran cap de lleó.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"25-40 min","notes":"Anar-hi aviat per evitar gent.","apple":"https://maps.apple.com/?q=Namba+Yasaka+Shrine+Osaka","google":"https://maps.google.com/?q=Namba+Yasaka+Shrine+Osaka","wiki":null},{"id":"p24","group":"o3","order":23,"name":"Namba Parks","cat":"Arquitectura/compres","tags":["Arquitectura/compres","Namba"],"desc":"Centre comercial amb terrasses enjardinades i arquitectura curiosa.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-60 min","notes":"Parada opcional de camí.","apple":"https://maps.apple.com/?q=Namba+Parks+Osaka","google":"https://maps.google.com/?q=Namba+Parks+Osaka","wiki":null},{"id":"p25","group":"o3","order":24,"name":"Den Den Town / Nipponbashi","cat":"Compres/otaku","tags":["Compres/otaku","Nipponbashi"],"desc":"Zona d’electrònica, manga, anime, videojocs i cultura otaku.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 2 h","notes":"Més retro/local que Akihabara.","apple":"https://maps.apple.com/?q=Den+Den+Town+Nipponbashi+Osaka","google":"https://maps.google.com/?q=Den+Den+Town+Nipponbashi+Osaka","wiki":null},{"id":"p26","group":"o3","order":25,"name":"Sennichimae Doguyasuji","cat":"Compres/cuina","tags":["Compres/cuina","Namba"],"desc":"Carrer d’estris de cuina: bols, ganivets, planxes de takoyaki i menatge.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45 min - 1 h 30","notes":"Com Kappabashi però a Osaka.","apple":"https://maps.apple.com/?q=Sennichimae+Doguyasuji+Shopping+Street+Osaka","google":"https://maps.google.com/?q=Sennichimae+Doguyasuji+Shopping+Street+Osaka","wiki":null},{"id":"p27","group":"o3","order":26,"name":"Mercat Kuromon Ichiba","cat":"Mercat/menjar","tags":["Mercat/menjar","Namba"],"desc":"Mercat de marisc, oden, menjar preparat i snacks.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Bon lloc per dinar informalment.","apple":"https://maps.apple.com/?q=Kuromon+Ichiba+Market+Osaka","google":"https://maps.google.com/?q=Kuromon+Ichiba+Market+Osaka","wiki":null},{"id":"p28","group":"o3","order":27,"name":"Temple Hozenji","cat":"Temple","tags":["Temple","Namba/Dotonbori"],"desc":"Petit temple amb estàtua coberta de molsa enmig del bullici.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"15-25 min","notes":"Oasi de calma a Namba.","apple":"https://maps.apple.com/?q=Hozenji+Temple+Osaka","google":"https://maps.google.com/?q=Hozenji+Temple+Osaka","wiki":null},{"id":"p29","group":"o3","order":28,"name":"Hozenji Yokocho","cat":"Carreró/menjar","tags":["Carreró/menjar","Namba/Dotonbori"],"desc":"Carreró tradicional de petits restaurants.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-60 min","notes":"Bona atmosfera per sopar.","apple":"https://maps.apple.com/?q=Hozenji+Yokocho+Osaka","google":"https://maps.google.com/?q=Hozenji+Yokocho+Osaka","wiki":null},{"id":"p30","group":"o3","order":29,"name":"Wagyu de Matsusaka prop de Hozenji","cat":"Restaurant","tags":["Restaurant","Namba"],"desc":"Restaurant de wagyu de Matsusaka mencionat prop de Hozenji/Dotonbori.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Nom concret no indicat als arxius.","apple":"https://maps.apple.com/?q=Matsusaka+beef+restaurant+Namba+Osaka+Hozenji","google":"https://maps.google.com/?q=Matsusaka+beef+restaurant+Namba+Osaka+Hozenji","wiki":null},{"id":"p31","group":"o3","order":30,"name":"Ebisubashi-suji Shotengai","cat":"Compres/menjar","tags":["Compres/menjar","Namba"],"desc":"Galeria comercial animada cap a Dotonbori.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45 min - 1 h 30","notes":"Aquí hi ha Rikuro i 551 Horai.","apple":"https://maps.apple.com/?q=Ebisubashi-suji+Shopping+Street+Osaka","google":"https://maps.google.com/?q=Ebisubashi-suji+Shopping+Street+Osaka","wiki":null},{"id":"p32","group":"o3","order":31,"name":"Rikuro Ojisan no Mise","cat":"Dolç","tags":["Dolç","Namba"],"desc":"Pastís de formatge japonès molt esponjós i famós.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"15-30 min","notes":"Millor acabat de sortir del forn; porta panses.","apple":"https://maps.apple.com/?q=Rikuro+Ojisan+no+Mise+Namba+Osaka","google":"https://maps.google.com/?q=Rikuro+Ojisan+no+Mise+Namba+Osaka","wiki":null},{"id":"p33","group":"o3","order":32,"name":"Dotonbori","cat":"Barri/menjar","tags":["Barri/menjar","Dotonbori"],"desc":"Centre visual i gastronòmic: canal, neons, façanes gegants i restaurants.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 h 30 - 3 h","notes":"Millor al vespre/nit.","apple":"https://maps.apple.com/?q=Dotonbori+Osaka","google":"https://maps.google.com/?q=Dotonbori+Osaka","wiki":null},{"id":"p34","group":"o3","order":33,"name":"Glico Man","cat":"Icona/foto","tags":["Icona/foto","Dotonbori"],"desc":"Neó icònic d’Osaka i símbol de Dotonbori.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"10-20 min","notes":"El disseny actual és digital.","apple":"https://maps.apple.com/?q=Dotonbori+Glico+Sign+Osaka","google":"https://maps.google.com/?q=Dotonbori+Glico+Sign+Osaka","wiki":null},{"id":"p35","group":"o3","order":34,"name":"Kuidaore Taro","cat":"Icona/cultura","tags":["Icona/cultura","Dotonbori"],"desc":"Figura associada a “kuidaore”: menjar fins arruïnar-se/rebentar.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"10-15 min","notes":"Resumeix l’esperit gastronòmic d’Osaka.","apple":"https://maps.apple.com/?q=Kuidaore+Taro+Dotonbori+Osaka","google":"https://maps.google.com/?q=Kuidaore+Taro+Dotonbori+Osaka","wiki":null},{"id":"p36","group":"o3","order":35,"name":"Tsuruhashi Fugetsu / okonomiyaki","cat":"Restaurant","tags":["Restaurant","Dotonbori/Namba"],"desc":"Cadena nascuda a Osaka especialitzada en okonomiyaki.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"Opció fàcil a Dotonbori.","apple":"https://maps.apple.com/?q=Tsuruhashi+Fugetsu+Dotonbori+Osaka","google":"https://maps.google.com/?q=Tsuruhashi+Fugetsu+Dotonbori+Osaka","wiki":null},{"id":"p37","group":"o3","order":36,"name":"Ajinoya","cat":"Restaurant","tags":["Restaurant","Dotonbori/Namba"],"desc":"Restaurant clàssic d’okonomiyaki, sovint amb cues.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Arriba aviat.","apple":"https://maps.apple.com/?q=Ajinoya+Osaka","google":"https://maps.google.com/?q=Ajinoya+Osaka","wiki":null},{"id":"p38","group":"o3","order":37,"name":"Shinsaibashi-suji Shotengai","cat":"Compres","tags":["Compres","Shinsaibashi"],"desc":"Galeria comercial coberta plena de botigues, restaurants i karaoke.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 2 h","notes":"Continuació natural des de Dotonbori.","apple":"https://maps.apple.com/?q=Shinsaibashi-suji+Shopping+Street+Osaka","google":"https://maps.google.com/?q=Shinsaibashi-suji+Shopping+Street+Osaka","wiki":null},{"id":"p39","group":"o3","order":38,"name":"Avinguda Midosuji","cat":"Passeig/luxe","tags":["Passeig/luxe","Midosuji"],"desc":"Gran avinguda elegant amb botigues de luxe i arquitectura comercial.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-60 min","notes":"Molt bonica amb il·luminació hivernal.","apple":"https://maps.apple.com/?q=Midosuji+Avenue+Osaka","google":"https://maps.google.com/?q=Midosuji+Avenue+Osaka","wiki":null},{"id":"p40","group":"o3","order":39,"name":"America-mura","cat":"Barri/moda","tags":["Barri/moda","Shinsaibashi"],"desc":"Moda juvenil, skate, hip-hop, vintage i takoyaki.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Busca la petita Estàtua de la Llibertat.","apple":"https://maps.apple.com/?q=America-mura+Osaka","google":"https://maps.google.com/?q=America-mura+Osaka","wiki":null},{"id":"p41","group":"o4","order":40,"name":"Aquari Kaiyukan","cat":"Activitat","tags":["Activitat","Badia d’Osaka"],"desc":"Un dels aquaris més coneguts del Japó, amb gran tanc central.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"2 - 3 h","notes":"Combina amb Tempozan.","apple":"https://maps.apple.com/?q=Osaka+Aquarium+Kaiyukan","google":"https://maps.google.com/?q=Osaka+Aquarium+Kaiyukan","wiki":null},{"id":"p42","group":"o4","order":41,"name":"Nòria Tempozan","cat":"Mirador","tags":["Mirador","Badia d’Osaka"],"desc":"Nòria amb vistes de la badia d’Osaka.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"30-45 min","notes":"Parada fàcil amb Kaiyukan.","apple":"https://maps.apple.com/?q=Tempozan+Ferris+Wheel+Osaka","google":"https://maps.google.com/?q=Tempozan+Ferris+Wheel+Osaka","wiki":null},{"id":"p43","group":"o4","order":42,"name":"Naniwa Kuishinbo Yokocho","cat":"Menjar","tags":["Menjar","Badia d’Osaka"],"desc":"Carreró gastronòmic tematitzat dins Tempozan.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"Per tastar especialitats locals.","apple":"https://maps.apple.com/?q=Naniwa+Kuishinbo+Yokocho+Osaka","google":"https://maps.google.com/?q=Naniwa+Kuishinbo+Yokocho+Osaka","wiki":null},{"id":"p44","group":"o4","order":43,"name":"Universal Studios Japan","cat":"Parc temàtic","tags":["Parc temàtic","Badia d’Osaka"],"desc":"Parc amb Super Nintendo World, Harry Potter, Minions i més.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 dia","notes":"Requereix dia propi.","apple":"https://maps.apple.com/?q=Universal+Studios+Japan+Osaka","google":"https://maps.google.com/?q=Universal+Studios+Japan+Osaka","wiki":null},{"id":"p45","group":"o4","order":44,"name":"Takopa / Universal Citywalk","cat":"Menjar","tags":["Menjar","Universal City"],"desc":"Zona de restaurants de takoyaki accessible sense entrada al parc.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"45-60 min","notes":"Bona si passes per Universal City.","apple":"https://maps.apple.com/?q=Takopa+Osaka+Universal+Citywalk","google":"https://maps.google.com/?q=Takopa+Osaka+Universal+Citywalk","wiki":null},{"id":"p46","group":"o4","order":45,"name":"Parc de l’Expo 1970 i Torre del Sol","cat":"Parc/cultura","tags":["Parc/cultura","Nord d’Osaka"],"desc":"Parc de l’Expo 1970 amb la famosa Torre del Sol.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"2 - 4 h","notes":"S’hi arriba amb monorail.","apple":"https://maps.apple.com/?q=Expo+%2770+Commemorative+Park+Tower+of+the+Sun+Osaka","google":"https://maps.google.com/?q=Expo+%2770+Commemorative+Park+Tower+of+the+Sun+Osaka","wiki":null},{"id":"p47","group":"o4","order":46,"name":"Minoo Park","cat":"Natura","tags":["Natura","Nord d’Osaka"],"desc":"Parc natural amb senderisme i cascada.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"2 - 4 h","notes":"Bon extra de natura.","apple":"https://maps.apple.com/?q=Minoo+Park+Osaka","google":"https://maps.google.com/?q=Minoo+Park+Osaka","wiki":null},{"id":"p48","group":"o4","order":47,"name":"Temple Katsuoji","cat":"Temple","tags":["Temple","Nord d’Osaka"],"desc":"Temple famós pels daruma de la sort i la victòria.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 - 1 h 30","notes":"Pot combinar amb Minoo.","apple":"https://maps.apple.com/?q=Katsuoji+Temple+Osaka","google":"https://maps.google.com/?q=Katsuoji+Temple+Osaka","wiki":null},{"id":"p49","group":"o4","order":48,"name":"Sakai","cat":"Excursió/compres","tags":["Excursió/compres","Sud d’Osaka"],"desc":"Zona de ganivets, kofun i mirador de l’ajuntament.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"3 - 5 h","notes":"Interessant per ganivets i història.","apple":"https://maps.apple.com/?q=Sakai+Osaka+knives+kofun","google":"https://maps.google.com/?q=Sakai+Osaka+knives+kofun","wiki":null},{"id":"p50","group":"o4","order":49,"name":"Museu Osamu Tezuka","cat":"Museu","tags":["Museu","Takarazuka"],"desc":"Museu dedicat al “déu del manga”.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 h 30 - 2 h","notes":"Accessible des d’Umeda.","apple":"https://maps.apple.com/?q=Osamu+Tezuka+Manga+Museum+Takarazuka","google":"https://maps.google.com/?q=Osamu+Tezuka+Manga+Museum+Takarazuka","wiki":null},{"id":"p51","group":"o4","order":50,"name":"Cup Noodles Museum Osaka Ikeda","cat":"Museu/activitat","tags":["Museu/activitat","Ikeda"],"desc":"Museu del ramen instantani, interessant amb nens.","address":"No indicada als arxius","hours":"No indicat als arxius","duration":"1 h 30 - 2 h","notes":"Prop del nord d’Osaka.","apple":"https://maps.apple.com/?q=Cup+Noodles+Museum+Osaka+Ikeda","google":"https://maps.google.com/?q=Cup+Noodles+Museum+Osaka+Ikeda","wiki":null}],"obs":["S'han fusionat duplicats recurrents: Dotonbori/Glico Man/Kuidaore, Castell d'Osaka, Umeda, Tennoji/Shinsekai, Sumiyoshi Taisha, etc.","Els arxius originals no inclouen adreces postals ni horaris oficials fiables per a la majoria de punts; per això aquests camps sovint indiquen que no apareixen a les fonts.","Universal Studios Japan s'ha deixat com a part del dia 4 (opcional) perquè requereix pràcticament una jornada sencera i no substitueix visitar la resta de la ciutat."],"routeUrl":"https://www.google.com/maps/dir/Castell%20d%E2%80%99Osaka%20i%20parc%2C%20Castell%2FChuo%2C%20Osaka%2C%20Japan/Santuari%20Osaka%20Tenmangu%2C%20Tenma%2C%20Osaka%2C%20Japan/Tenjinbashi-suji%20Shotengai%2C%20Tenma%2C%20Osaka%2C%20Japan/Nakanoshima%2C%20Nakanoshima%2C%20Osaka%2C%20Japan/HEP%20FIVE%20i%20n%C3%B2ria%2C%20Umeda%2C%20Osaka%2C%20Japan/Gate%20Tower%20Building%2C%20Umeda%2FFukushima%2C%20Osaka%2C%20Japan/Umeda%20Sky%20Building%2C%20Umeda%2C%20Osaka%2C%20Japan/Osaka%20Station%20City%20%2F%20Big%20Man%2C%20Umeda%2C%20Osaka%2C%20Japan/551%20Horai%2C%20Umeda%2FNamba%2C%20Osaka%2C%20Japan/Negiyaki%20Yamamoto%2C%20Umeda%2C%20Osaka%2C%20Japan/Santuari%20Imamiya%20Ebisu%2C%20Namba%2FShinsekai%2C%20Osaka%2C%20Japan/Temple%20Isshinji%2C%20Tennoji%2C%20Osaka%2C%20Japan/Temple%20Shitennoji%2C%20Tennoji%2C%20Osaka%2C%20Japan/Santuari%20Horikoshi%2C%20Tennoji%2C%20Osaka%2C%20Japan/Parc%20Tennoji%2C%20Tennoji%2C%20Osaka%2C%20Japan/Shinsekai%2C%20Shinsekai%2C%20Osaka%2C%20Japan/Torre%20Tsutenkaku%2C%20Shinsekai%2C%20Osaka%2C%20Japan/Kushikatsu%20Daruma%20%2F%20kushikatsu%2C%20Shinsekai%2C%20Osaka%2C%20Japan/Spa%20World%2C%20Shinsekai%2C%20Osaka%2C%20Japan/Santuari%20Sumiyoshi%20Taisha%2C%20Sumiyoshi%2C%20Osaka%2C%20Japan/Tramvia%20Hankai%2C%20Sumiyoshi%2FTennoji%2C%20Osaka%2C%20Japan/Abeno%20Harukas%2C%20Tennoji%2FAbeno%2C%20Osaka%2C%20Japan/Santuari%20Namba%20Yasaka%2C%20Namba%2C%20Osaka%2C%20Japan/Namba%20Parks%2C%20Namba%2C%20Osaka%2C%20Japan/Den%20Den%20Town%20%2F%20Nipponbashi%2C%20Nipponbashi%2C%20Osaka%2C%20Japan/Sennichimae%20Doguyasuji%2C%20Namba%2C%20Osaka%2C%20Japan/Mercat%20Kuromon%20Ichiba%2C%20Namba%2C%20Osaka%2C%20Japan/Temple%20Hozenji%2C%20Namba%2FDotonbori%2C%20Osaka%2C%20Japan/Hozenji%20Yokocho%2C%20Namba%2FDotonbori%2C%20Osaka%2C%20Japan/Wagyu%20de%20Matsusaka%20prop%20de%20Hozenji%2C%20Namba%2C%20Osaka%2C%20Japan/Ebisubashi-suji%20Shotengai%2C%20Namba%2C%20Osaka%2C%20Japan/Rikuro%20Ojisan%20no%20Mise%2C%20Namba%2C%20Osaka%2C%20Japan/Dotonbori%2C%20Dotonbori%2C%20Osaka%2C%20Japan/Glico%20Man%2C%20Dotonbori%2C%20Osaka%2C%20Japan/Kuidaore%20Taro%2C%20Dotonbori%2C%20Osaka%2C%20Japan/Tsuruhashi%20Fugetsu%20%2F%20okonomiyaki%2C%20Dotonbori%2FNamba%2C%20Osaka%2C%20Japan/Ajinoya%2C%20Dotonbori%2FNamba%2C%20Osaka%2C%20Japan/Shinsaibashi-suji%20Shotengai%2C%20Shinsaibashi%2C%20Osaka%2C%20Japan/Avinguda%20Midosuji%2C%20Midosuji%2C%20Osaka%2C%20Japan/America-mura%2C%20Shinsaibashi%2C%20Osaka%2C%20Japan/Aquari%20Kaiyukan%2C%20Badia%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/N%C3%B2ria%20Tempozan%2C%20Badia%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Naniwa%20Kuishinbo%20Yokocho%2C%20Badia%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Universal%20Studios%20Japan%2C%20Badia%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Takopa%20%2F%20Universal%20Citywalk%2C%20Universal%20City%2C%20Osaka%2C%20Japan/Parc%20de%20l%E2%80%99Expo%201970%20i%20Torre%20del%20Sol%2C%20Nord%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Minoo%20Park%2C%20Nord%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Temple%20Katsuoji%2C%20Nord%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Sakai%2C%20Sud%20d%E2%80%99Osaka%2C%20Osaka%2C%20Japan/Museu%20Osamu%20Tezuka%2C%20Takarazuka%2C%20Osaka%2C%20Japan/Cup%20Noodles%20Museum%20Osaka%20Ikeda%2C%20Ikeda%2C%20Osaka%2C%20Japan"}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const CITY_META = {
+  tokyo:{label:'Tòquio', icon:'🗼'},
+  kyoto:{label:'Kyoto', icon:'⛩️'},
+  osaka:{label:'Osaka', icon:'🐙'}
+};
+const CITIES = ['osaka'];
+const STORAGE_PREFIX = 'japo_itinerari_visitats_';
+
+const state = {};
+CITIES.forEach(city=>{
+  state[city] = {
+    search:'', group:'all', cat:'all', hideVisited:false,
+    visited: new Set(JSON.parse(localStorage.getItem(STORAGE_PREFIX+city) || '[]'))
+  };
+});
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(city){ localStorage.setItem(STORAGE_PREFIX+city, JSON.stringify([...state[city].visited])); }
+
+function buildPanelSkeleton(city){
+  const meta = CITY_META[city];
+  const cats = [...new Set(DATA[city].places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA[city].groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' · ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  return `
+  <section class="panel-body${city===CITIES[0]?' active':''}" id="panel-${city}" data-city="${city}">
+    <div class="routebar">
+      <a class="routebtn" href="${DATA[city].routeUrl}" target="_blank" rel="noopener">🗺️ Ruta completa de ${meta.label} a Google Maps (${DATA[city].places.length} parades)</a>
+      <span class="routenote">Google Maps limita el nombre de parades per ruta; si no les carrega totes, obre-la igualment i completa la resta amb els botons de cada lloc.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca a ${meta.label}: lloc, barri, nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els dies/blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div class="js-groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA[city].obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  </section>`;
+}
+
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(city, p, idx){
+  const done = state[city].visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${idx+1}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(city){
+  const el = document.querySelector(`#panel-${city} .js-groups`);
+  const groups = DATA[city].groups;
+  let html = '';
+  groups.forEach(g=>{
+    const placesInGroup = DATA[city].places.filter(p=>p.group===g.id);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map((p,i)=>placeCard(city,p,i)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(city){
+  const s = state[city];
+  const panel = document.getElementById(`panel-${city}`);
+  const places = panel.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state[city].visited.has(id);
+    let ok = true;
+    if(s.search && !hay.includes(s.search)) ok = false;
+    if(s.group!=='all' && group!==s.group) ok = false;
+    if(s.cat!=='all' && cat!==s.cat.toLowerCase()) ok = false;
+    if(s.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  panel.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  panel.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA[city].places.length;
+  const doneCount = state[city].visited.size;
+  panel.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  panel.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  panel.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePanel(city){
+  const panel = document.getElementById(`panel-${city}`);
+  panel.querySelector('.js-search').addEventListener('input', e=>{ state[city].search = e.target.value.trim().toLowerCase(); applyFilters(city); });
+  panel.querySelector('.js-group').addEventListener('change', e=>{ state[city].group = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-cat').addEventListener('change', e=>{ state[city].cat = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-hide').addEventListener('click', e=>{
+    state[city].hideVisited = !state[city].hideVisited;
+    e.target.classList.toggle('on', state[city].hideVisited);
+    e.target.setAttribute('aria-pressed', String(state[city].hideVisited));
+    applyFilters(city);
+  });
+  panel.addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const s = state[city];
+    if(s.visited.has(id)) s.visited.delete(id); else s.visited.add(id);
+    saveVisited(city);
+    const card = btn.closest('.place');
+    const done = s.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters(city);
+  });
+}
+
+function initCity(city){
+  renderGroups(city);
+  wirePanel(city);
+  applyFilters(city);
+}
+
+// build all panels
+const panelsRoot = document.getElementById('panels');
+CITIES.forEach(city=>{ panelsRoot.insertAdjacentHTML('beforeend', buildPanelSkeleton(city)); });
+CITIES.forEach(initCity);
+
+// tabs
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tabbtn');
+  if(!btn) return;
+  const city = btn.dataset.city;
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b===btn));
+  document.querySelectorAll('.panel-body').forEach(p=>p.classList.toggle('active', p.dataset.city===city));
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>
