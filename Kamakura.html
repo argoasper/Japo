@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Kamakura — Temples, santuaris i platges</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem;flex-basis:100%}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Extret del podcast de japonismo · guia interactiva autosuficient</div>
+<h1>🎋 Itinerari de Kamakura — Temples, santuaris i platges</h1>
+<p class="subtitle">L'antiga capital dels shōgun, a menys d'una hora de Tòquio: el Gran Buda de Kōtoku-in, el santuari Tsurugaoka Hachimangū, els cinc grans temples Zen, el temple del bambú i les platges de Yuigahama. Prou per omplir un dia sencer o més d'una jornada.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir d'una transcripció del podcast de japonismo sobre Kamakura, ampliada amb fonts com kanpai-japan.com i les webs oficials dels temples per a adreces, horaris i preus. Verifiqueu sempre horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"daibutsu","label":"Kotoku-in i Hase-dera — el Gran Buda","sub":"Kotoku-in → Hase-dera → Gokuraku-ji"},{"id":"centre","label":"Tsurugaoka Hachimangu i Komachi-dori","sub":"El santuari principal de Kamakura i la seva avinguda comercial"},{"id":"zen","label":"Els cinc grans temples Zen","sub":"Kenchō-ji → Engaku-ji → Jōchi-ji → Tōkei-ji → Jōmyō-ji"},{"id":"mes-temples","label":"Més temples i santuaris per descobrir","sub":"Hōkoku-ji (bambú) → Zuisen-ji → Meigetsu-in → Egara Tenjin-sha → Sugimoto-dera"},{"id":"platges","label":"Platges i l'Enoden cap a Enoshima","sub":"Yuigahama/Zaimokuza → plataforma rocosa Wakaenoshima"}],"routes":[{"id":"kamakura","label":"🗺️ Ruta per Kamakura","groups":["daibutsu","centre","zen","mes-temples","platges"],"url":"https://www.google.com/maps/dir/35.3193,139.5479/35.3260,139.5563/35.3327,139.5498/35.3372,139.5468/35.3350,139.5475/35.3369,139.5460/35.3227,139.5654/35.3252,139.5701/35.3196,139.5636/35.3315,139.5478/35.3223,139.5605/35.3213,139.5645/35.3168,139.5357/35.3122,139.5350/35.3103,139.5289/35.3081,139.5417/35.3086,139.5484"}],"places":[{"id":"kotokuin","group":"daibutsu","order":1,"name":"Kōtoku-in (Gran Buda de Kamakura)","cat":"temple","priority":"alta","tags":["imprescindible","daibutsu","el que es pot entrar"],"desc":"Temple on es troba el Gran Buda de Kamakura, una estàtua de bronze del Buda Amida de més de 13 m d'alçada i gairebé 100 tones de pes: la segona estàtua de Buda asseguda més gran del Japó, després del Daibutsu del Tōdai-ji de Nara, però la més gran a l'aire lliure. Originalment estava coberta per un temple de fusta, que un tsunami del segle XV va destruir sense arribar a moure la pròpia estàtua, que des de llavors queda a la intempèrie amb les muntanyes de fons. Es pot entrar al seu interior (buit) amb una petita donació, i des de fora es poden veure unes finestretes obertes a l'esquena, pensades per ventilar-la.","address":"4-2-28 Hase, Kamakura, Kanagawa 248-0016","hours":"8:00-17:30 (abril-setembre); 8:00-17:00 (octubre-març); interior obert 8:00-16:30","duration":"45 min - 1 hora","notes":"Al recinte hi ha també unes sandàlies gegants de Buda penjades en un mur. Entrar a l'interior costa una petita donació (uns 50 ¥).","apple":"https://maps.apple.com/?q=Kotoku-in+Great+Buddha+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Kotoku-in+Great+Buddha+Kamakura","wiki":"https://en.wikipedia.org/wiki/K%C5%8Dtoku-in"},{"id":"hasedera","group":"daibutsu","order":2,"name":"Hase-dera","cat":"temple","priority":"alta","tags":["hortènsies","estàtues jizo","vistes de la costa de shonan"],"desc":"Temple amb una natura preciosa, especialment bonic a finals de juny/principis de juliol quan floreixen les hortènsies dels seus jardins. El més conegut del temple són les desenes i desenes d'estatuetes Jizō, bodhisattva guardià dels viatgers i dels nens (sobretot dels que van morir molt petits o abans de néixer): els pares que ploren la pèrdua d'un fill en compren una i la col·loquen al temple, sovint amb petites ofrenes (begudes, cromos, llaminadures) del que els agradava al seu fill, perquè l'ajudi a assolir el cel budista. Al complex principal hi ha també una de les estàtues de fusta de Kannon més grans del Japó (no es poden fer fotos a l'interior) i, a l'entrada, vistes fantàstiques de tota la costa de Shōnan.","address":"3-11-2 Hase, Kamakura, Kanagawa 248-0016","hours":"8:00-17:00 (fins a les 16:30 d'octubre a febrer)","duration":"1-1,5 hores","notes":"Forma part de la peregrinació Bandō Sanjūsankasho (33 temples dedicats a la deessa Benzaiten): és la quarta parada de les 33. Es combina gairebé sempre amb Kōtoku-in per la poca distància que els separa.","apple":"https://maps.apple.com/?q=Hase-dera+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Hase-dera+Kamakura","wiki":"https://en.wikipedia.org/wiki/Hase-dera_(Kamakura)"},{"id":"gokurakuji","group":"daibutsu","order":3,"name":"Gokuraku-ji","cat":"temple","priority":"baixa","tags":["poc conegut","antic gran complex","peregrinació de 24 jizo"],"desc":"Temple molt menys conegut que els altres dos d'aquest bloc, però que en el passat va ser un complex enorme amb 50 petits temples, un pavelló daurat i una pagoda; avui en queda molt poca cosa. Forma part també d'una peregrinació de Kannon i, a més, té les estàtues número 20 i 21 de la peregrinació dels 24 Jizō de Kamakura.","address":"1-1-2 Gokurakuji, Kamakura, Kanagawa 248-0011","hours":"No indicat als arxius","duration":"30-45 min","notes":"Candidat a formar part del Patrimoni de la Humanitat de la Unesco; només val la pena si teniu temps de sobres després de Kōtoku-in i Hase-dera.","apple":"https://maps.apple.com/?q=Gokuraku-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Gokuraku-ji+Kamakura","wiki":null},{"id":"tsurugaoka","group":"centre","order":1,"name":"Tsurugaoka Hachimangū","cat":"santuari","priority":"alta","tags":["imprescindible","hatsumode","yabusame"],"desc":"El santuari més important de Kamakura, fundat el 1063 per Minamoto Yoriyoshi i traslladat i ampliat a la seva ubicació actual el 1180 per Minamoto Yoritomo, el primer shōgun del shogunat de Kamakura. Dedicat a Hachiman, déu patró del clan Minamoto i, per extensió, dels samurais i guerrers en general; és el centre cultural de la ciutat i escenari dels seus festivals més importants. S'hi accedeix per la gran avinguda sagrada Wakamiya Ōji, que travessa el centre de Kamakura fins a l'entrada del santuari. A dalt de les escales hi ha el saló principal, i als peus dues basses que representen els clans rivals Minamoto i Taira, protagonistes de les guerres que van posar fi al període Heian.","address":"2-1-31 Yukinoshita, Kamakura, Kanagawa 248-8588","hours":"5:00-21:00 (abril-setembre); 6:00-21:00 (octubre-març); obert 24h l'1-3 de gener","duration":"1-1,5 hores","notes":"Als primers dies de l'any (1-3 de gener) hi passen més de dos milions de visitants pel Hatsumode, la primera visita de l'any. També s'hi celebra Yabusame (tir amb arc a cavall) a mitjans d'abril i mitjans de setembre. El gran ginkgo mil·lenari del recinte, anterior al mateix santuari, es va ensorrar amb una tempesta el 2010.","apple":"https://maps.apple.com/?q=Tsurugaoka+Hachimangu","google":"https://www.google.com/maps/search/?api=1&query=Tsurugaoka+Hachimangu","wiki":"https://en.wikipedia.org/wiki/Tsurugaoka_Hachimang%C5%AB"},{"id":"komachi-dori","group":"centre","order":2,"name":"Komachi-dori","cat":"carrer comercial","priority":"alta","tags":["carrer d'accés a l'estació","artesania local","gelats"],"desc":"Una de les avingudes comercials més populars i animades de Kamakura, sense sostre, plena de cafeteries, botigues de records, artesania local i petits restaurants; comença just a la sortida de l'estació de Kamakura i connecta directament amb el Tsurugaoka Hachimangū.","address":"Komachi, Kamakura, Kanagawa 248-0006","hours":"La majoria de botigues obren cap a les 10:00-11:00 i tanquen cap a les 18:00; a primera hora del matí està tot tancat","duration":"1-1,5 hores","notes":"Millor passejar-hi entre les 11:00 i les 16:00, quan està tot obert i animat; si hi arribeu molt d'hora (abans de les 9:00-10:00) o molt tard (després de les 17:30-18:00), estarà pràcticament tot tancat.","apple":"https://maps.apple.com/?q=Komachi+Street+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Komachi+Street+Kamakura","wiki":null},{"id":"kenchoji","group":"zen","order":1,"name":"Kenchō-ji","cat":"temple","priority":"alta","tags":["temple zen més antic del japó","vistes de kamakura"],"desc":"El més antic i important dels cinc grans temples Zen de Kamakura, amb vistes fabuloses sobre la ciutat des de les zones altes del recinte.","address":"8 Yamanouchi, Kamakura, Kanagawa 247-0062","hours":"8:30-16:30","duration":"45 min - 1 hora","notes":"Entrada: 500 ¥ adults, 200 ¥ nens. A uns 15 min a peu de l'estació de Kita-Kamakura.","apple":"https://maps.apple.com/?q=Kencho-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Kencho-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/Kench%C5%8D-ji"},{"id":"engakuji","group":"zen","order":2,"name":"Engaku-ji","cat":"temple","priority":"alta","tags":["escales de fusta de cedre","entrada espectacular"],"desc":"Un dels cinc grans temples Zen, amb unes escales de fusta de cedre que porten fins a una entrada espectacular; molt a prop de l'estació de Kita-Kamakura, gairebé al costat de les vies.","address":"409 Yamanouchi, Kamakura, Kanagawa 247-0062","hours":"8:00-16:00 (fins a les 16:30 de març a novembre)","duration":"45 min - 1 hora","notes":"Entrada: 500 ¥ adults, 200 ¥ nens de primària/secundària. A només 1 minut a peu de l'estació de Kita-Kamakura.","apple":"https://maps.apple.com/?q=Engaku-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Engaku-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/Engaku-ji"},{"id":"jochiji","group":"zen","order":3,"name":"Jōchi-ji","cat":"temple","priority":"mitjana","tags":["escales d'accés","porta principal"],"desc":"Un dels cinc grans temples Zen de Kamakura, amb una bonica escalinata d'accés i una porta principal que val la pena contemplar amb calma.","address":"1402 Yamanouchi, Kamakura, Kanagawa 247-0062","hours":"No indicat als arxius","duration":"30-45 min","notes":"Molt a prop d'Engaku-ji i Kenchō-ji: es poden combinar fàcilment els tres en una mateixa passejada per la zona de Kita-Kamakura.","apple":"https://maps.apple.com/?q=Jochi-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Jochi-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/J%C5%8Dchi-ji"},{"id":"tokeiji","group":"zen","order":4,"name":"Tōkei-ji (el temple del divorci)","cat":"temple","priority":"mitjana","tags":["refugi de dones maltractades","kakekomidera","enkiridera"],"desc":"Temple de bellesa gairebé miniatura que, en el passat, va servir de refugi per a dones que patien maltractaments per part dels seus marits: qui hi entrava i hi vivia un temps podia obtenir el divorci, cosa gairebé impossible per a una dona en aquella època. Per això de vegades se'l coneix com a Kakekomi-dera (el «temple del refugi») o Enkiri-dera (el «temple del divorci»).","address":"1367 Yamanouchi, Kamakura, Kanagawa 247-0062","hours":"No indicat als arxius","duration":"30-45 min","notes":"Molt a prop d'Engaku-ji, a la zona de Kita-Kamakura.","apple":"https://maps.apple.com/?q=Tokei-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Tokei-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/T%C5%8Dkei-ji"},{"id":"jomyoji","group":"zen","order":5,"name":"Jōmyō-ji","cat":"temple","priority":"mitjana","tags":["sostre espectacular del saló principal","jardí zen"],"desc":"El cinquè dels grans temples Zen de Kamakura, amb un sostre espectacular al seu saló principal i un jardí zen molt cuidat.","address":"3-8-31 Jōmyōji, Kamakura, Kanagawa 248-0003","hours":"No indicat als arxius","duration":"30-45 min","notes":"Queda a la zona est de Kamakura, prop de Hōkoku-ji i Zuisen-ji: es poden visitar tots tres junts.","apple":"https://maps.apple.com/?q=Jomyo-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Jomyo-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/J%C5%8Dmy%C5%8D-ji"},{"id":"hokokuji","group":"mes-temples","order":1,"name":"Hōkoku-ji (el temple del bambú)","cat":"temple","priority":"alta","tags":["bosc de bambú tranquil","alternativa a arashiyama"],"desc":"Conegut popularment com «el temple del bambú» pel seu petit però espectacular bosc de bambú i el seu jardí tradicional. Si el bosc de bambú d'Arashiyama (Kyoto) és el més famós del Japó, també és el més ple de turistes: aquest de Hōkoku-ji, més petit, ofereix una experiència molt més tranquil·la i amb molta menys gent.","address":"2-7-4 Jōmyōji, Kamakura, Kanagawa 248-0003","hours":"9:00-16:00; última entrada 30 min abans; tancat del 29 de desembre al 3 de gener","duration":"45 min - 1 hora","notes":"Entrada al jardí de bambú: uns 400 ¥. Té una casa de te dins del jardí de bambú on prendre te verd envoltats de canyes.","apple":"https://maps.apple.com/?q=Hokoku-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Hokoku-ji+Kamakura","wiki":"https://en.wikipedia.org/wiki/H%C5%8Dkoku-ji"},{"id":"zuisenji","group":"mes-temples","order":2,"name":"Zuisen-ji","cat":"temple","priority":"mitjana","tags":["floració de pruners","petita vall envoltada de natura"],"desc":"Temple situat en una petita vall envoltada de natura, especialment recomanable en època de floració dels pruners (febrer aproximadament), quan tot el recinte s'omple de flors espectaculars.","address":"710 Nikaidō, Kamakura, Kanagawa 248-0002","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Es pot combinar amb Hōkoku-ji i Jōmyō-ji, ja que és a la mateixa zona est de la ciutat.","apple":"https://maps.apple.com/?q=Zuisen-ji+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Zuisen-ji+Kamakura","wiki":null},{"id":"meigetsuin","group":"mes-temples","order":3,"name":"Meigetsu-in (el temple de les hortènsies)","cat":"temple","priority":"mitjana","tags":["ajisai dera","camí d'accés ple d'hortènsies"],"desc":"Conegut popularment com «Ajisai-dera» (el temple de les hortènsies, «ajisai» en japonès), ja que fins i tot el propi camí d'accés al temple està totalment ple d'hortènsies, espectacular a finals de juny/principis de juliol.","address":"189 Yamanouchi, Kamakura, Kanagawa 247-0062","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Millor visitar-lo en època de floració de les hortènsies; la resta de l'any és més tranquil però menys espectacular.","apple":"https://maps.apple.com/?q=Meigetsuin+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Meigetsuin+Kamakura","wiki":null},{"id":"egara-tenjinsha","group":"mes-temples","order":4,"name":"Egara Tenjin-sha","cat":"santuari","priority":"baixa","tags":["deessa de les arts literàries","exàmens"],"desc":"Petit santuari sintoista on es pot demanar sort i èxit en els estudis a la deïtat de les arts literàries; molt popular entre els estudiants japonesos, sobretot en època d'exàmens d'accés a la universitat.","address":"1-38 Nikaidō, Kamakura, Kanagawa 248-0002","hours":"No indicat als arxius","duration":"20-30 min","notes":"Depenent de l'època de l'any (temporada d'exàmens o no) hi trobareu molta o poca gent.","apple":"https://maps.apple.com/?q=Egara+Tenjinsha+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Egara+Tenjinsha+Kamakura","wiki":null},{"id":"sugimotodera","group":"mes-temples","order":5,"name":"Sugimoto-dera","cat":"temple","priority":"baixa","tags":["escales de pedra amb molsa","el temple més antic de kamakura"],"desc":"Un dels temples més antics de Kamakura, conegut per les seves precioses escales de pedra cobertes de molsa que porten fins al saló principal.","address":"903 Nikaidō, Kamakura, Kanagawa 248-0002","hours":"No indicat als arxius","duration":"30-45 min","notes":"Queda una mica més allunyat que la resta de temples d'aquest bloc; combineu-lo si teniu temps de sobres.","apple":"https://maps.apple.com/?q=Sugimotodera+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Sugimotodera+Kamakura","wiki":null},{"id":"platges-kamakura","group":"platges","order":1,"name":"Platges de Kamakura (Yuigahama i Zaimokuza)","cat":"altres","priority":"mitjana","tags":["banys de mar","surf a prop, a enoshima","bona per a nens"],"desc":"Una àmplia badia de platges (Yuigahama, Zaimokuza, Kōshigoe) a només 20 minuts a peu o 5 en autobús des de l'estació de Kamakura. L'aigua s'aprofundeix molt a poc a poc: fins i tot allunyant-se bastant de la vora, sol cobrir només fins als genolls, cosa que la fa ideal per anar-hi amb nens petits. Al voltant hi ha molts restaurants i bars de platja (a l'estil dels «chiringuitos»), amb un ambient molt similar al mediterrani però amb menjar japonès: ramen, curry o hambagu (hamburguesa japonesa sense pa) amb vistes al mar.","address":"Yuigahama, Kamakura, Kanagawa 248-0014","hours":"Accés lliure; temporada de bany aproximadament juliol-agost","duration":"Mig dia","notes":"Les platges més orientades al surf són cap a Enoshima, una mica més lluny; les de Kamakura són més familiars i tranquil·les.","apple":"https://maps.apple.com/?q=Yuigahama+Beach+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Yuigahama+Beach+Kamakura","wiki":null},{"id":"wakare-enoshima","group":"platges","order":2,"name":"Plataforma rocosa Wakaenoshima","cat":"altres","priority":"baixa","tags":["restes d'un port artificial del període kamakura","marea baixa"],"desc":"Quan baixa la marea a la platja de Zaimokuza, apareix una plataforma rocosa que és, en realitat, la resta d'un port artificial construït durant el període Kamakura per a la càrrega i descàrrega de vaixells. Es pot accedir a peu quan la marea ho permet.","address":"Zaimokuza, Kamakura, Kanagawa 248-0013","hours":"Només accessible amb marea baixa","duration":"20-30 min","notes":"Comproveu la taula de marees abans d'anar-hi expressament, ja que amb marea alta queda coberta d'aigua.","apple":"https://maps.apple.com/?q=Zaimokuza+Beach+Kamakura","google":"https://www.google.com/maps/search/?api=1&query=Zaimokuza+Beach+Kamakura","wiki":null}],"obs":["Els llocs d'aquest itinerari s'han extret de la transcripció del podcast de japonismo sobre Kamakura, ampliats amb dades pràctiques (adreces, horaris, preus) de fonts com kanpai-japan.com, les webs oficials dels temples i Viquipèdia.","Kamakura és compacta però té molts llocs d'interès repartits en un radi d'uns 5 km: fer-los tots caminant en un sol dia és exigent. El podcast mateix recomana escollir entre els quatre punts imprescindibles (Kōtoku-in amb el Gran Buda, Hase-dera, Tsurugaoka Hachimangū i Komachi-dori) si només teniu mig dia, i ampliar amb els temples Zen, els temples de la zona est o les platges si teniu el dia sencer o més d'una jornada.","El podcast recomana combinar Kamakura amb una excursió a Enoshima utilitzant el tren Enoden, que connecta totes dues poblacions en uns 35 minuts; no s'ha inclòs Enoshima en aquest itinerari perquè el propi podcast el deixa per a un episodi diferent.","Hi ha fins a set colls de muntanya (camins de senderisme històrics) que connecten diversos punts d'interès de Kamakura, entre ells el camí Daibutsu (entre Kōtoku-in i Jōchi-ji) i el pas Kamegaeri-zaka; no s'han inclòs com a fitxes pròpies però es poden consultar a la web de japonismo si us interessa el senderisme.","Quan no s'ha trobat una dada concreta a la transcripció ni a les fonts consultades, s'ha marcat com «No indicat als arxius»; reviseu sempre horaris i preus actualitzats abans del viatge."]}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'kamakura_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' — ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const routeButtons = (DATA.routes||[]).map(r=>{
+    const groupIds = r.groups || (r.group ? [r.group] : []);
+    const count = DATA.places.filter(p=>groupIds.includes(p.group)).length;
+    return `<a class="routebtn" href="${r.url}" target="_blank" rel="noopener">${r.label} (${count} parades)</a>`;
+  }).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      ${routeButtons}
+      <span class="routenote">Kamakura és compacta: una única ruta combina tots els blocs en un recorregut orientatiu per la ciutat. Consulteu les Observacions per decidir quines parades prioritzar si teniu poc temps.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>

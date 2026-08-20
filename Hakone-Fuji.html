@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Hakone — Ruta dels transports i el mont Fuji</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem;flex-basis:100%}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Extret del podcast de japonismo · guia interactiva autosuficient</div>
+<h1>♨️ Itinerari de Hakone — Ruta dels transports i el mont Fuji</h1>
+<p class="subtitle">Recorregut per les cinc zones de Hakone (Hakone-Yumoto, Gora, Owakudani, Moto-Hakone i Hakone-machi), seguint l'esperit de la clàssica «ruta dels transports»: tren de muntanya, funicular, telefèric i vaixell pel llac Ashi. S'hi afegeix una extensió opcional al Castell d'Odawara, de camí des de Tòquio.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir d'una transcripció del podcast de japonismo sobre Hakone, ampliada amb les webs oficials de turisme de Hakone (hakonenavi.jp, hakone-japan.com) per a adreces, horaris i preus. Verifiqueu sempre alertes volcàniques, horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"hakone-yumoto","label":"Hakone-Yumoto — la porta d'entrada","sub":"Hakone-Yumoto → Shōgen-ji → pont del tren Tozan → santuari Hakone Daitengusan"},{"id":"gora","label":"Gora i els museus de muntanya","sub":"Gora → Museu a l'aire lliure → Museu d'Art de Hakone → Yunessun → Museu Pola"},{"id":"owakudani","label":"Owakudani — la vall volcànica","sub":"Owakudani i el mont Komagatake, accessibles amb telefèric"},{"id":"moto-hakone","label":"Moto-Hakone i Hakone-machi — el llac Ashi","sub":"Santuari de Hakone → antiga Ruta Tōkaidō → Museu Narukawa → Parc Imperial → punt de control de Hakone"},{"id":"odawara","label":"Extensió: Castell d'Odawara","sub":"Parada opcional de camí entre Tòquio i Hakone, en tren"}],"routes":[{"id":"transports","label":"🗺️ Ruta dels transports per Hakone","groups":["hakone-yumoto","gora","owakudani","moto-hakone"],"url":"https://www.google.com/maps/dir/35.2333,139.1069/35.2330,139.1050/35.2280,139.0950/35.2260,139.0985/35.2419,139.0567/35.2394,139.0491/35.2429,139.0526/35.2367,139.0508/35.2287,139.0402/35.2410,139.0197/35.2280,139.0245/35.2023,139.0220/35.2075,139.0175/35.2154,139.0132/35.2010,139.0180/35.1985,139.0225/35.1975,139.0215"}],"places":[{"id":"hakone-yumoto","group":"hakone-yumoto","order":1,"name":"Hakone-Yumoto","cat":"barri","priority":"alta","tags":["porta d'entrada","onsen manju","soba"],"desc":"El punt d'entrada i sortida de Hakone: aquí arriben els trens des de Tòquio/Odawara i surt la majoria d'autobusos que recorren la regió. És el centre d'oci de la zona, amb la seva concentració més gran d'hotels i ryokan (la majoria amb bany termal), botigues de records, pastisseries i restaurants de soba tradicionals. Bona base per allotjar-se si no aneu amb cotxe.","address":"Yumoto, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0311","hours":"Els comerços solen obrir d'10:00 a 17:00-18:00","duration":"1-2 hores de passeig (més si hi dormiu)","notes":"Pel carrer principal es poden tastar onsen manju (pastissets al vapor fets amb els vapors sulfurosos locals) i senbei (galetes d'arròs a la brasa amb salsa de soja). A la pastisseria Gran Riviera recomanen les tartaletes de formatge i mel; a Sagamiya, el «Yama Brownie». Per dinar, els restaurants Yama Soba i Hatsuhana són coneguts pel soba fred, i el kinmedai (peix blanc de la badia de Sagami) també és típic de la zona. Val la pena passejar per la vora del riu Sukumo.","apple":"https://maps.apple.com/?q=Hakone-Yumoto+Station","google":"https://www.google.com/maps/search/?api=1&query=Hakone-Yumoto+Station","wiki":null},{"id":"shogenji","group":"hakone-yumoto","order":2,"name":"Temple Shōgen-ji","cat":"temple","priority":"baixa","tags":["poc conegut","a prop de l'estació"],"desc":"Petit temple a poca distància a peu de l'estació de Hakone-Yumoto, una opció senzilla si us allotgeu una sola nit a la zona i us queda temps just abans o després de passejar pel carrer principal.","address":"Yumoto, Hakone-machi, Ashigarashimo-gun, Kanagawa","hours":"No indicat als arxius","duration":"20-30 min","notes":"No té l'entitat dels grans temples de Hakone-machi o Gora; és més aviat una parada de pas si teniu temps de sobres a Yumoto.","apple":"https://maps.apple.com/?q=Shogenji+Hakone+Yumoto","google":"https://www.google.com/maps/search/?api=1&query=Shogenji+Hakone+Yumoto","wiki":null},{"id":"pont-hayakawa","group":"hakone-yumoto","order":3,"name":"Pont sobre el riu Hayakawa (mirador del tren Tozan)","cat":"mirador","priority":"baixa","tags":["fotografia de trens","fan with trains"],"desc":"Un curt trajecte en autobús des de Hakone-Yumoto porta fins a un pont des d'on es poden fer fotografies clàssiques del tren de muntanya Hakone Tozan travessant el pont amb la muntanya de fons: un dels racons preferits dels aficionats al ferrocarril.","address":"Tonosawa, Hakone-machi, Ashigarashimo-gun, Kanagawa","hours":"Accés lliure","duration":"20-30 min","notes":"Recomanat només si us agraden els trens o la fotografia de paisatge; no és una parada imprescindible per a la resta de visitants.","apple":"https://maps.apple.com/?q=Tonosawa+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Tonosawa+Hakone","wiki":null},{"id":"hakone-daitengu","group":"hakone-yumoto","order":4,"name":"Santuari Hakone Daitengusan","cat":"santuari","priority":"mitjana","tags":["farolets vermells","tengu"],"desc":"Santuari sintoista ple de farolets vermells, dedicat als tengu (esperits de la muntanya amb nas llarg), amb un ambient molt fotogènic i força menys turístic que els grans llocs de Hakone-machi.","address":"Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0313","hours":"No indicat als arxius","duration":"30-45 min","notes":"Es pot combinar amb una excursió des de Hakone-Yumoto en autobús; és una bona opció si voleu allunyar-vos una mica de les zones més massificades.","apple":"https://maps.apple.com/?q=Hakone+Daitengu+Shrine","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Daitengu+Shrine","wiki":null},{"id":"gora","group":"gora","order":1,"name":"Gora","cat":"barri","priority":"mitjana","tags":["intercanviador","tren de muntanya","funicular"],"desc":"Punt d'intercanvi entre el tren de muntanya Hakone Tozan, que puja des de Hakone-Yumoto fent un recorregut en zig-zag (amb tres canvis de sentit per salvar el fort desnivell), i el funicular Hakone Tozan cap a Sōunzan. El trajecte en tren fins aquí (uns 40 min) val la pena només pel viatge, sobretot a finals de juny/juliol quan floreixen les hortènsies que voregen les vies i alguns trens les il·luminen de nit.","address":"Gora, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0408","hours":"Servei de tren i funicular durant tot el dia","duration":"Punt de pas; 30 min si voleu passejar-hi","notes":"Floració d'hortènsies: finals de juny - principis de juliol.","apple":"https://maps.apple.com/?q=Gora+Station+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Gora+Station+Hakone","wiki":null},{"id":"open-air-museum","group":"gora","order":2,"name":"Museu a l'aire lliure de Hakone","cat":"museu","priority":"alta","tags":["escultura contemporània","picasso","henry moore"],"desc":"Un dels museus més impressionants del Japó: un parc d'escultura a l'aire lliure enmig de les muntanyes de Hakone, amb obres d'artistes com Joan Miró, Henry Moore o Picasso (que té un pavelló propi) repartides entre jardins i natura espectacular.","address":"1121 Ninotaira, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0493","hours":"9:00-17:00, tots els dies de l'any (última entrada 30 min abans)","duration":"1,5-2,5 hores","notes":"Entrada: 2.000 ¥ adults, 1.600 ¥ estudiants de secundària/universitat, 800 ¥ nens. Té parada pròpia del tren Tozan (Chōkoku-no-Mori), just a la sortida del museu.","apple":"https://maps.apple.com/?q=Hakone+Open-Air+Museum","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Open-Air+Museum","wiki":"https://en.wikipedia.org/wiki/Hakone_Open-Air_Museum"},{"id":"hakone-art-museum","group":"gora","order":3,"name":"Museu d'Art de Hakone (jardí de molsa)","cat":"museu","priority":"baixa","tags":["ceràmica","jardí tradicional de molsa"],"desc":"Museu centrat en ceràmica tradicional japonesa, amb un jardí de molsa (kokedera) especialment bonic a la tardor amb els arbres de momiji, on també es pot prendre te verd a la casa de te Kin-no-ma.","address":"1300 Gora, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0408","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Bona opció per combinar amb Gora si teniu temps just abans o després de pujar cap a Sōunzan.","apple":"https://maps.apple.com/?q=Hakone+Museum+of+Art","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Museum+of+Art","wiki":null},{"id":"yunessun","group":"gora","order":4,"name":"Yunessun (Hakone Kowakien)","cat":"activitat","priority":"mitjana","tags":["onsen de vi i te verd","tobogans d'aigua","banyador"],"desc":"Parc temàtic dedicat als banys termals, amb onsens temàtics una mica peculiars (de xocolata, de vi, de te verd) on es va en banyador i es pot anar en família, amics o parella. També té tobogans d'aigua i piscines més orientades als nens. Una manera fàcil i divertida d'introduir-se a la cultura de l'onsen sense complicacions.","address":"1297 Ninotaira, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0407","hours":"No indicat als arxius","duration":"2-4 hores","notes":"És una opció diferent de l'onsen tradicional (sense roba de bany); si preferiu l'experiència clàssica, molts hotels de la zona ofereixen accés a no-hostes al migdia (higaeri onsen).","apple":"https://maps.apple.com/?q=Yunessun+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Yunessun+Hakone","wiki":null},{"id":"pola-museum","group":"gora","order":5,"name":"Museu Pola","cat":"museu","priority":"baixa","tags":["impressionistes","renoir monet picasso","10000 obres"],"desc":"Museu d'art que exhibeix la col·lecció privada de Suzuki Tsuneshi: més de 10.000 obres d'impressionistes i d'art modern, amb noms com Renoir, Monet, Modigliani, Chagall, Picasso o Kandinsky.","address":"1285 Kozukayama, Sengokuhara, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0631","hours":"No indicat als arxius","duration":"1-1,5 hores","notes":"Queda una mica allunyat de la resta de museus de Gora (cap a Sengokuhara); recomanable si teniu cotxe o esteu disposats a agafar l'autobús específic.","apple":"https://maps.apple.com/?q=Pola+Museum+of+Art","google":"https://www.google.com/maps/search/?api=1&query=Pola+Museum+of+Art","wiki":"https://en.wikipedia.org/wiki/Pola_Museum_of_Art"},{"id":"owakudani","group":"owakudani","order":1,"name":"Owakudani","cat":"mirador","priority":"alta","tags":["ous negres","vapors sulfurosos","vistes del fuji"],"desc":"Zona volcànica activa, una de les més turístiques de Hakone, amb vapors sulfurosos ben visibles (i olor a ou podrit inclosa) i, si hi ha sort, vistes espectaculars del mont Fuji des del telefèric just abans d'arribar-hi. L'especialitat local és el kuro-tamago, l'ou negre bullit en les aigües riques en sofre, que la creença popular diu que allarga la vida set anys cadascun. Hi ha també un santuari petit (Enmusubi) dedicat a la fortuna i la vida llarga, amb aigua «sagrada» no potable només per rentar-se les mans.","address":"Owakudani, Sengokuhara, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0631","hours":"El telefèric pot tancar-se per alertes volcàniques: comproveu-ho abans a la web de l'Agència Meteorològica del Japó","duration":"1-1,5 hores","notes":"S'hi arriba amb el telefèric Hakone Ropeway des de Sōunzan; continua després cap a Tōgendai, a l'altra vora del llac Ashi. Els camins de senderisme de la zona sovint estan tancats per l'activitat volcànica: reviseu-ho abans d'anar-hi.","apple":"https://maps.apple.com/?q=Owakudani+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Owakudani+Hakone","wiki":"https://en.wikipedia.org/wiki/%C5%8Cwakudani"},{"id":"komagatake","group":"owakudani","order":2,"name":"Mont Komagatake i santuari Motomiya","cat":"mirador","priority":"baixa","tags":["telefèric des del llac","vistes del llac ashi"],"desc":"Muntanya a la qual s'accedeix amb un telefèric propi des de la vora del llac Ashi (Tōgendai), amb el petit santuari Motomiya (el santuari original de Hakone) al cim i vistes precioses tant del propi llac com, si hi ha sort, del mont Fuji.","address":"Motohakone, Hakone-machi, Ashigarashimo-gun, Kanagawa","hours":"No indicat als arxius","duration":"1-1,5 hores incloent el telefèric","notes":"També hi ha camins de senderisme des de l'estació del funicular de Sōunzan que hi arriben a peu; consulteu si estan oberts abans d'anar-hi.","apple":"https://maps.apple.com/?q=Mount+Komagatake+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Mount+Komagatake+Hakone","wiki":null},{"id":"hakone-shrine","group":"moto-hakone","order":1,"name":"Santuari de Hakone","cat":"santuari","priority":"alta","tags":["torii al llac","imprescindible","instagram"],"desc":"El santuari més fotografiat de Hakone, amb el famós torii vermell que sembla flotar a la vora del llac Ashi (una de les imatges més compartides a Instagram de tot el Japó). Però el santuari és molt més que aquesta foto: cal pujar unes escales de pedra flanquejades per grans cedres centenaris fins al saló principal i els salons secundaris, en un entorn molt més tranquil i bonic del que suggereix la cua de gent per fotografiar-se al torii. Molt a prop, a Saino Kawara, hi ha un grup d'antigues estàtues de pedra de Buda, moltes amb petits barrets.","address":"80-1 Motohakone, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0522","hours":"Accés lliure","duration":"1-1,5 hores","notes":"Es pot llogar una barca de pedals per veure el torii des de l'aigua i des d'una altra perspectiva, evitant la cua de la foto clàssica.","apple":"https://maps.apple.com/?q=Hakone+Shrine","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Shrine","wiki":"https://en.wikipedia.org/wiki/Hakone_Shrine"},{"id":"tokaido-cedars","group":"moto-hakone","order":2,"name":"Antiga avinguda de cedres de la Ruta Tōkaidō","cat":"altres","priority":"baixa","tags":["ruta tokaido","cedres centenaris","període edo"],"desc":"Un dels pocs trams que queden de la Ruta Tōkaidō original, l'antiga via que unia Edo (Tòquio) amb Kyoto durant el període Edo, flanquejada per grans cedres. Un tram de paviment de pedra original condueix des de Moto-Hakone cap a l'antiga casa de te Amazake-chaya.","address":"Moto-Hakone, Hakone-machi, Ashigarashimo-gun, Kanagawa","hours":"Accés lliure","duration":"30-45 min a peu fins a l'Amazake-chaya","notes":"Si no us ve de gust caminar, hi ha autobús directe des de Moto-Hakone fins a la zona de la casa de te.","apple":"https://maps.apple.com/?q=Old+Tokaido+Cedar+Avenue+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Old+Tokaido+Cedar+Avenue+Hakone","wiki":null},{"id":"amazake-chaya","group":"moto-hakone","order":3,"name":"Casa de te Amazake-chaya","cat":"restaurant","priority":"baixa","tags":["reconstrucció d'una casa de te de fa 350 anys","amazake"],"desc":"Reconstrucció d'una antiga casa de te del període Edo, amb més de 350 anys d'història en aquest mateix indret de l'antiga Ruta Tōkaidō. Bon lloc per fer una pausa i prendre un te (o l'amazake, la beguda dolça i lleugerament fermentada d'arròs que li dona nom) enmig de la caminada.","address":"Moto-Hakone, Hakone-machi, Ashigarashimo-gun, Kanagawa","hours":"No indicat als arxius","duration":"20-30 min","notes":"Es pot arribar tant caminant per l'antiga Ruta Tōkaidō com en autobús des de Moto-Hakone.","apple":"https://maps.apple.com/?q=Amazake+Chaya+Hakone","google":"https://www.google.com/maps/search/?api=1&query=Amazake+Chaya+Hakone","wiki":null},{"id":"narukawa-museum","group":"moto-hakone","order":4,"name":"Museu d'Art Narukawa","cat":"museu","priority":"baixa","tags":["nihonga","període heian","vistes del llac"],"desc":"Museu amb una bonica col·lecció de pintura tradicional japonesa nihonga, amb obres originals des del període Heian, i bones vistes sobre el llac Ashi des de les seves sales.","address":"570 Motohakone, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0522","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Una bona opció d'art tradicional per contrastar amb l'art contemporani dels museus de Gora.","apple":"https://maps.apple.com/?q=Narukawa+Art+Museum","google":"https://www.google.com/maps/search/?api=1&query=Narukawa+Art+Museum","wiki":null},{"id":"hakone-imperial-park","group":"moto-hakone","order":5,"name":"Parc Imperial de Hakone (Palau de Hakone)","cat":"parc","priority":"mitjana","tags":["vil·la d'estiu de l'emperador meiji","tranquil","vistes del fuji"],"desc":"Parc que envolta l'antiga vil·la imperial construïda el 1886 com a residència d'estiu de l'emperador Meiji. Malgrat la popularitat de Hakone com a destinació turística (fins i tot entre els mateixos japonesos), aquest parc sol estar molt tranquil, gairebé buit, amb diversos miradors i punts fotogràfics sobre el llac Ashi i, si hi ha sort, el mont Fuji.","address":"老欠 Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0522","hours":"9:00-16:30 aprox. (varia segons l'època); tancat alguns dilluns","duration":"45 min - 1 hora","notes":"Contrasta amb la resta de Hakone: fins i tot en temporada alta sol estar molt poc concorregut.","apple":"https://maps.apple.com/?q=Hakone+Detached+Palace","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Detached+Palace","wiki":null},{"id":"hakone-checkpoint","group":"moto-hakone","order":6,"name":"Punt de control de Hakone (Hakone Sekisho)","cat":"monument","priority":"mitjana","tags":["període edo","reconstrucció fidel","control de viatgers"],"desc":"Punt de control construït originalment el 1619 en ple traçat de la Ruta Tōkaidō, on els funcionaris del shogunat Tokugawa inspeccionaven la documentació i l'equipatge dels viatgers, com a part del sistema per controlar els desplaçaments dels senyors feudals (daimyō), obligats a passar temporades a Edo. El que es veu avui és una reconstrucció de 2007, feta amb un gran nivell de detall, amb un mirador des d'on imaginar com era tota la zona durant el període Edo i reproduccions de viatgers i el seu equipatge.","address":"1 Hakone, Hakone-machi, Ashigarashimo-gun, Kanagawa 250-0522","hours":"9:00-17:00 (fins a les 16:30 de desembre a febrer); última entrada 30 min abans","duration":"45 min - 1 hora","notes":"No hi ha aparcament al mateix recinte. Es pot combinar fàcilment amb el Parc Imperial de Hakone, que hi és molt a prop.","apple":"https://maps.apple.com/?q=Hakone+Checkpoint","google":"https://www.google.com/maps/search/?api=1&query=Hakone+Checkpoint","wiki":null},{"id":"odawara-castle","group":"odawara","order":1,"name":"Castell d'Odawara","cat":"monument","priority":"mitjana","tags":["reconstrucció","parc del castell","extensió de camí"],"desc":"Preciosa reconstrucció d'un castell japonès amb el seu parc, a mig camí entre Tòquio i Hakone. Es pot combinar fàcilment amb la ruta d'anada (Tòquio → Odawara, visita al castell, després Odawara → Hakone) o amb la tornada, en lloc de fer el trajecte directe.","address":"Jōnai 6-1, Odawara, Kanagawa 250-0014","hours":"9:00-17:00 (última entrada 16:30)","duration":"1-1,5 hores","notes":"Molt recomanat pels autors del podcast per no fer sempre el mateix trajecte directe Tòquio-Hakone; s'hi arriba amb el Shinkansen Tōkaidō (35 min des de Tòquio, inclòs al JR Pass) i des d'allà es continua cap a Hakone-Yumoto amb la línia privada Odakyū.","apple":"https://maps.apple.com/?q=Odawara+Castle","google":"https://www.google.com/maps/search/?api=1&query=Odawara+Castle","wiki":"https://en.wikipedia.org/wiki/Odawara_Castle"}],"obs":["Els llocs d'aquest itinerari s'han extret de la transcripció del podcast de japonismo sobre Hakone, ampliats amb dades pràctiques (adreces, horaris, preus) de les webs oficials de turisme de Hakone (hakonenavi.jp, hakone-japan.com) i dels propis museus/monuments quan calia.","Hakone té alertes volcàniques que poden afectar el telefèric d'Owakudani i alguns camins de senderisme: reviseu sempre la pàgina de l'Agència Meteorològica del Japó abans d'anar-hi, tal com recomana el propi podcast.","La ruta de Google Maps combina els quatre blocs principals (Hakone-Yumoto, Gora, Owakudani, Moto-Hakone/Hakone-machi) seguint l'ordre real de la coneguda «ruta dels transports»: tren de muntanya, funicular, telefèric i vaixell. En realitat una part del trajecte es fa en vaixell pel llac Ashi, no per carretera, així que la ruta de cotxe de Google Maps és només orientativa.","El podcast recomana explícitament NO intentar fer tota la «ruta dels transports» en una sola excursió de día si voleu gaudir dels llocs amb calma: millor fer nit a Hakone i repartir-ho en dos dies, o triar només algunes parades.","El Castell d'Odawara queda fora de la ruta principal (és una parada de tren abans o després de Hakone, no part del recorregut per la regió) i per això no té botó de ruta propi.","Quan no s'ha trobat una dada concreta a la transcripció ni a les fonts oficials consultades, s'ha marcat com «No indicat als arxius»; reviseu sempre horaris i preus actualitzats abans del viatge."]}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'hakone_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' — ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const routeButtons = (DATA.routes||[]).map(r=>{
+    const groupIds = r.groups || (r.group ? [r.group] : []);
+    const count = DATA.places.filter(p=>groupIds.includes(p.group)).length;
+    return `<a class="routebtn" href="${r.url}" target="_blank" rel="noopener">${r.label} (${count} parades)</a>`;
+  }).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      ${routeButtons}
+      <span class="routenote">La ruta dels transports combina els quatre blocs principals de Hakone en l'ordre real del recorregut (tren de muntanya, funicular, telefèric i vaixell). El Castell d'Odawara és una extensió de camí i no hi és inclòs: consulteu l'enllaç de Google Maps de la seva pròpia fitxa.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>

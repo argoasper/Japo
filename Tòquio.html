@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Tòquio</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#b3452e; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+/* city accent colours, applied via [data-city] on panel */
+[data-city="tokyo"]{--accent:#b3452e}
+[data-city="kyoto"]{--accent:#8c332b}
+[data-city="osaka"]{--accent:#c2410c}
+
+.tabs{display:flex;gap:6px;margin:14px 0 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);z-index:30;padding-top:4px}
+.tabbtn{font:inherit;font-weight:750;border:none;background:transparent;color:var(--muted);padding:10px 14px;border-radius:10px 10px 0 0;cursor:pointer;border-bottom:3px solid transparent}
+.tabbtn:hover{color:var(--text)}
+.tabbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.panel-body{display:none}
+.panel-body.active{display:block}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:2px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem}
+
+.toolbar{position:sticky;top:48px;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Japó 2026 · guia interactiva autosuficient</div>
+<h1>🗼 Itinerari Tòquio</h1>
+<p class="subtitle">Itinerari interactiu autosuficient de Tòquio, extret del document conjunt de Tòquio · Kyoto · Osaka (mateix format i funcionalitats: cerca, filtres, ruta completa a Google Maps i seguiment de llocs visitats).</p>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tabbtn active" data-city="tokyo">🗼 Tòquio</button>
+</nav>
+
+<div id="panels"></div>
+
+<footer>Generat combinant els tres itineraris originals de Tòquio, Kyoto i Osaka en un sol document autosuficient (sense connexió a internet necessària per consultar-lo). Verifiqueu horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">{"tokyo":{"groups":[{"id":"d1","label":"Dia 1 · Tokio modern, tradicional i neons","sub":"Roppongi → Asakusa → Shibuya → Harajuku → Shinjuku"},{"id":"d2","label":"Dia 2 · Ginza, mercats, jardins i cultura otaku","sub":"Ginza → Tsukiji → Hama-rikyu → Akihabara → 2k540/Okachimachi → Ameyoko → Ueno"},{"id":"d3","label":"Dia 3 · Estació de Tokio, Palau Imperial, Shimbashi/Shiodome i Odaiba","sub":"Tokyo Station → Marunouchi/Palau Imperial → Chidorigafuchi/Yasukuni → Shimbashi/Shiodome → Yurikamome → Odaiba"}],"places":[{"id":"d1-3","group":"d1","order":1,"name":"Senso-ji / Kaminarimon","cat":"temple","tags":["temple","tradicional","imprescindible"],"desc":"Fundat l'any 645, és el temple budista més antic de Tòquio, dedicat a la deessa Kannon i un dels centres espirituals més visitats del Japó. S'hi accedeix per la icònica porta Kaminarimon amb el seu gran fanal vermell, seguida pel carrer comercial Nakamise-dori.","address":"2-3-1 Asakusa, Taito, Tokyo","hours":"No indicat als arxius","duration":"1 h - 1 h 30 min","notes":"Millor a primera hora o al vespre per evitar multituds.","apple":"https://maps.apple.com/?q=Senso-ji+Temple+Asakusa+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Senso-ji+Temple+Asakusa+Tokyo","wiki":"https://en.wikipedia.org/wiki/Sens%C5%8D-ji"},{"id":"d1-4","group":"d1","order":2,"name":"Asakusa Culture Tourist Information Center","cat":"mirador","tags":["mirador","gratuït"],"desc":"Edifici dissenyat per l'arquitecte Kengo Kuma que combina l'oficina d'informació turística d'Asakusa amb un mirador gratuït al vuitè pis, amb vistes de la porta Kaminarimon, el carrer Nakamise i, en dies clars, el Tokyo Skytree.","address":"2-18-9 Kaminarimon, Taito, Tokyo","hours":"No indicat als arxius","duration":"20 - 30 min","notes":"Pujada ràpida i molt útil per situar Asakusa.","apple":"https://maps.apple.com/?q=Asakusa+Culture+Tourist+Information+Center+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Asakusa+Culture+Tourist+Information+Center+Tokyo","wiki":null},{"id":"d1-5","group":"d1","order":3,"name":"Kappabashi-dori","cat":"compres","tags":["compres","cuina"],"desc":"Conegut com el 'carrer de la cuina', Kappabashi-dori concentra centenars de botigues a l'engròs d'estris de cuina, ganivets i ceràmica, i és famós pels aliments de plàstic (sampuru) que decoren els aparadors dels restaurants japonesos.","address":"Kappabashi-dori, Taito, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Molt recomanable si vols souvenirs pràctics de cuina japonesa.","apple":"https://maps.apple.com/?q=Kappabashi+Street+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Kappabashi+Street+Tokyo","wiki":null},{"id":"d1-1","group":"d1","order":4,"name":"Roppongi Hills / Mori Tower","cat":"mirador","tags":["mirador","museu","arquitectura"],"desc":"Roppongi Hills és un dels grans complexos urbans de Tòquio (obert el 2003), amb la Mori Tower com a edifici central, el museu Mori Art Museum al pis 53 i el mirador Tokyo City View, un dels més ben valorats de la ciutat gràcies a les vistes de 360 graus.","address":"Roppongi Hills, Minato, Tokyo","hours":"No indicat als arxius","duration":"1 h 30 min","notes":"Reserva/consulta horaris si vols pujar al Tokyo City View.","apple":"https://maps.apple.com/?q=Roppongi+Hills+Mori+Tower+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Roppongi+Hills+Mori+Tower+Tokyo","wiki":"https://en.wikipedia.org/wiki/Roppongi_Hills"},{"id":"d1-2","group":"d1","order":5,"name":"The National Art Center, Tokyo","cat":"museu","tags":["museu","arquitectura"],"desc":"Obert el 2007 i dissenyat per l'arquitecte Kisho Kurokawa, és el museu més gran del Japó per superfície i, de manera peculiar, no té col·lecció permanent: només acull exposicions temporals. La façana ondulada de vidre és en si mateixa una atracció.","address":"7-22-2 Roppongi, Minato, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h 30 min","notes":"Ideal si hi ha una exposició que t’interessi; si vas just de temps, fes només l’edifici.","apple":"https://maps.apple.com/?q=The+National+Art+Center+Tokyo+Roppongi","google":"https://www.google.com/maps/search/?api=1&query=The+National+Art+Center+Tokyo+Roppongi","wiki":"https://en.wikipedia.org/wiki/The_National_Art_Center,_Tokyo"},{"id":"d1-10","group":"d1","order":6,"name":"Omotesando","cat":"arquitectura","tags":["arquitectura","compres"],"desc":"Avinguda arbrada sovint anomenada els 'Camps Elisis de Tòquio', coneguda per l'arquitectura d'autor de les botigues de moda de luxe dissenyades per arquitectes de renom internacional.","address":"Omotesando, Minato/Shibuya, Tokyo","hours":"No indicat als arxius","duration":"45 min","notes":"Passeig curt per veure façanes i ambient.","apple":"https://maps.apple.com/?q=Omotesando+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Omotesando+Tokyo","wiki":"https://en.wikipedia.org/wiki/Omotesando"},{"id":"d1-7","group":"d1","order":7,"name":"Shibuya Sky","cat":"mirador","tags":["mirador","posta-sol","reserva"],"desc":"Mirador a l'aire lliure al capdamunt de la torre Shibuya Scramble Square (230 m), inaugurat el 2019. Ofereix vistes panoràmiques de 360 graus sobre Shibuya i, en dies clars, del mont Fuji; molt popular a la posta de sol.","address":"Shibuya Scramble Square, Shibuya, Tokyo","hours":"No indicat als arxius","duration":"1 h - 1 h 30 min","notes":"Reserva amb antelació, especialment per a la posta de sol.","apple":"https://maps.apple.com/?q=Shibuya+Sky+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Shibuya+Sky+Tokyo","wiki":"https://en.wikipedia.org/wiki/Shibuya_Scramble_Square"},{"id":"d1-6","group":"d1","order":8,"name":"Shibuya Scramble Crossing / Hachiko","cat":"icona","tags":["icona","foto","barri"],"desc":"Considerat el creuament de vianants més transitat del món, amb fins a nou direccions de pas simultànies. Al costat hi ha l'estàtua de Hachikō, el gos que va esperar fidelment el seu amo durant anys, convertit en símbol de lleialtat i punt de trobada.","address":"Shibuya Station area, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Bon lloc per començar la tarda a Shibuya.","apple":"https://maps.apple.com/?q=Shibuya+Scramble+Crossing+Hachiko+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Shibuya+Scramble+Crossing+Hachiko+Tokyo","wiki":"https://en.wikipedia.org/wiki/Shibuya_Crossing"},{"id":"d1-9","group":"d1","order":9,"name":"Takeshita-dori / Harajuku","cat":"compres","tags":["compres","cultura-pop","menjar"],"desc":"Carrer estret i atapeït considerat l'epicentre de la moda juvenil i les subcultures de Tòquio, amb botigues de roba alternativa, cosplay i dolços virals. Els carrers laterals ofereixen una experiència més tranquil·la que l'artèria principal.","address":"Takeshita Street, Jingumae, Shibuya, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Els carrers laterals solen ser més agradables que l’artèria principal.","apple":"https://maps.apple.com/?q=Takeshita+Street+Harajuku+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Takeshita+Street+Harajuku+Tokyo","wiki":"https://en.wikipedia.org/wiki/Takeshita_Street"},{"id":"d1-8","group":"d1","order":10,"name":"Meiji Jingu","cat":"santuari","tags":["santuari","natura","tradicional"],"desc":"Santuari xintoista dedicat a l'emperador Meiji i la seva esposa, inaugurat el 1920 i reconstruït després de la Segona Guerra Mundial. Envoltat per un bosc artificial de més de 100.000 arbres donats per tot el Japó, contrasta amb el bullici de Harajuku.","address":"1-1 Yoyogikamizonocho, Shibuya, Tokyo","hours":"No indicat als arxius","duration":"1 h","notes":"Tanca relativament aviat; no el deixis per massa tard.","apple":"https://maps.apple.com/?q=Meiji+Jingu+Shrine+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Meiji+Jingu+Shrine+Tokyo","wiki":"https://en.wikipedia.org/wiki/Meiji_Shrine"},{"id":"d1-11","group":"d1","order":11,"name":"Tokyo Metropolitan Government Building","cat":"mirador","tags":["mirador","gratuït"],"desc":"Seu del govern metropolità de Tòquio, dissenyada per Kenzo Tange i inaugurada el 1991. Les dues torres bessones alberguen miradors gratuïts a 202 metres d'alçada, una alternativa econòmica als miradors de pagament.","address":"2-8-1 Nishi-Shinjuku, Shinjuku, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Alternativa econòmica als miradors de pagament.","apple":"https://maps.apple.com/?q=Tokyo+Metropolitan+Government+Building+Observatory+Shinjuku","google":"https://www.google.com/maps/search/?api=1&query=Tokyo+Metropolitan+Government+Building+Observatory+Shinjuku","wiki":"https://en.wikipedia.org/wiki/Tokyo_Metropolitan_Government_Building"},{"id":"d1-12","group":"d1","order":12,"name":"Omoide Yokocho","cat":"sopar","tags":["sopar","izakaya","nocturn"],"desc":"Xarxa de callejons estrets sorgits al mercat negre de la postguerra, plens de minúscules parades de yakitori i izakaya. El seu nom significa 'carreró dels records' i conserva l'atmosfera del Tòquio de mitjan segle XX.","address":"1 Chome Nishishinjuku, Shinjuku, Tokyo","hours":"No indicat als arxius","duration":"1 h - 1 h 30 min","notes":"Bon punt per sopar; locals petits i ambient intens.","apple":"https://maps.apple.com/?q=Omoide+Yokocho+Shinjuku+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Omoide+Yokocho+Shinjuku+Tokyo","wiki":"https://en.wikipedia.org/wiki/Omoide_Yokoch%C5%8D"},{"id":"d1-13","group":"d1","order":13,"name":"Kabukicho / Godzilla Head","cat":"neons","tags":["neons","nocturn","foto"],"desc":"El districte d'entreteniment nocturn més gran del Japó, ple de neons, bars i karaokes. Sobre l'edifici Toho Cinemas hi destaca un cap gegant de Godzilla, un dels punts fotogràfics més populars de Shinjuku.","address":"Kabukicho, Shinjuku, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Evita captadors que t’ofereixin entrar a bars.","apple":"https://maps.apple.com/?q=Kabukicho+Godzilla+Head+Shinjuku+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Kabukicho+Godzilla+Head+Shinjuku+Tokyo","wiki":"https://en.wikipedia.org/wiki/Kabukich%C5%8D"},{"id":"d1-14","group":"d1","order":14,"name":"Golden Gai","cat":"bar","tags":["bar","nocturn"],"desc":"Laberint de sis carrerons amb més de 200 bars minúsculs, en edificis d'entreguerres que van sobreviure a la reconstrucció urbana. Cada bar té personalitat pròpia i sovint només hi caben una desena de clients.","address":"1 Chome Kabukicho, Shinjuku, Tokyo","hours":"No indicat als arxius","duration":"1 h - 2 h","notes":"Alguns bars cobren cover charge; mira cartells abans d’entrar.","apple":"https://maps.apple.com/?q=Golden+Gai+Shinjuku+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Golden+Gai+Shinjuku+Tokyo","wiki":"https://en.wikipedia.org/wiki/Golden_Gai"},{"id":"d2-4","group":"d2","order":1,"name":"Hama-rikyu Gardens","cat":"jardí","tags":["jardí","te","natura"],"desc":"Antics jardins d'un shogun del període Edo; l'únic jardí de Tòquio amb un estany d'aigua salada connectat directament a la badia, amb flux i reflux de marea, i una casa de te tradicional enmig de l'aigua.","address":"1-1 Hamarikyuteien, Chuo, Tokyo","hours":"No indicat als arxius","duration":"1 h - 1 h 30 min","notes":"Molt bona pausa verda després de Tsukiji.","apple":"https://maps.apple.com/?q=Hama-rikyu+Gardens+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Hama-rikyu+Gardens+Tokyo","wiki":"https://en.wikipedia.org/wiki/Hama-riky%C5%AB_Gardens"},{"id":"d2-2","group":"d2","order":2,"name":"Tsukiji Outer Market","cat":"mercat","tags":["mercat","menjar","esmorzar"],"desc":"Tot i que el gran mercat majorista del peix es va traslladar a Toyosu el 2018, el mercat exterior de Tsukiji continua ple de parades i petits restaurants de sushi i marisc fresc, ideal per esmorzar o dinar d'hora.","address":"4 Chome Tsukiji, Chuo, Tokyo","hours":"No indicat als arxius","duration":"1 h - 1 h 30 min","notes":"Ves-hi al matí: moltes parades tanquen aviat.","apple":"https://maps.apple.com/?q=Tsukiji+Outer+Market+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Tsukiji+Outer+Market+Tokyo","wiki":null},{"id":"d2-3","group":"d2","order":3,"name":"Tsukiji Hongwanji","cat":"temple","tags":["temple","arquitectura"],"desc":"Temple budista de l'escola Jodo Shinshu amb una arquitectura insòlita inspirada en l'art indi antic, obra de l'arquitecte Chuta Ito el 1934, ben diferent dels temples de fusta tradicionals.","address":"3-15-1 Tsukiji, Chuo, Tokyo","hours":"No indicat als arxius","duration":"20 - 30 min","notes":"Parada curta i molt fàcil d’encaixar amb Tsukiji.","apple":"https://maps.apple.com/?q=Tsukiji+Hongwanji+Temple+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Tsukiji+Hongwanji+Temple+Tokyo","wiki":"https://en.wikipedia.org/wiki/Tsukiji_Hongan-ji"},{"id":"d2-1","group":"d2","order":4,"name":"Ginza / Chuo-dori","cat":"compres","tags":["compres","arquitectura","luxe"],"desc":"Barri de compres de luxe considerat des de finals del segle XIX el més elegant de Tòquio, amb grans magatzems històrics i botigues insígnia internacionals. Els caps de setmana, Chuo-dori es tanca al trànsit i esdevé un passeig per a vianants.","address":"Chuo-dori, Ginza, Chuo, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Els caps de setmana Chuo-dori es tanca al trànsit a partir del migdia.","apple":"https://maps.apple.com/?q=Ginza+Chuo+Dori+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Ginza+Chuo+Dori+Tokyo","wiki":"https://en.wikipedia.org/wiki/Ginza"},{"id":"d2-5","group":"d2","order":5,"name":"Akihabara Electric Town","cat":"otaku","tags":["otaku","electrònica","compres"],"desc":"Barri conegut mundialment com la meca de l'electrònica, els videojocs, el manga i l'anime, amb una forta cultura otaku, maid cafés i botigues de figures de diverses plantes.","address":"Akihabara, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"1 h - 2 h","notes":"Filtra botigues segons interessos; és fàcil perdre-hi hores.","apple":"https://maps.apple.com/?q=Akihabara+Electric+Town+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Akihabara+Electric+Town+Tokyo","wiki":"https://en.wikipedia.org/wiki/Akihabara"},{"id":"d2-6","group":"d2","order":6,"name":"Mandarake Complex Akihabara","cat":"manga","tags":["manga","anime","compres"],"desc":"Cadena japonesa especialitzada en manga, anime i col·leccionisme de segona mà, fundada el 1987. La botiga d'Akihabara ocupa diverses plantes plenes de còmics antics, figures i material retro.","address":"3-11-12 Sotokanda, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Interessant per manga, figures i col·leccionisme.","apple":"https://maps.apple.com/?q=Mandarake+Complex+Akihabara+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Mandarake+Complex+Akihabara+Tokyo","wiki":"https://en.wikipedia.org/wiki/Mandarake"},{"id":"d2-7","group":"d2","order":7,"name":"2k540 Aki-Oka Artisan","cat":"artesania","tags":["artesania","cafè","compres"],"desc":"Espai comercial instal·lat sota els arcs del ferrocarril entre Akihabara i Okachimachi, dedicat a l'artesania feta a mà (cuir, ceràmica, joieria), en contrast amb el consum massiu d'Akihabara.","address":"5 Chome Ueno, Taito, Tokyo","hours":"No indicat als arxius","duration":"45 min","notes":"Bona transició caminant cap a Okachimachi/Ueno.","apple":"https://maps.apple.com/?q=2k540+Aki-Oka+Artisan+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=2k540+Aki-Oka+Artisan+Tokyo","wiki":null},{"id":"d2-8","group":"d2","order":8,"name":"Ameyoko Market","cat":"mercat","tags":["mercat","menjar","compres"],"desc":"Mercat de carrer sorgit després de la Segona Guerra Mundial com a mercat negre; avui és un carrer bulliciós amb parades de peix, fruita i roba a preus populars, sota les vies del tren entre Ueno i Okachimachi.","address":"Ueno, Taito, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Ambient molt viu al final de la tarda.","apple":"https://maps.apple.com/?q=Ameyoko+Shopping+District+Ueno+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Ameyoko+Shopping+District+Ueno+Tokyo","wiki":"https://en.wikipedia.org/wiki/Ameyoko"},{"id":"d2-9","group":"d2","order":9,"name":"Ueno Park","cat":"parc","tags":["parc","museus","temple"],"desc":"Un dels parcs públics més antics i grans del Japó (obert el 1873), amb un gran estany, temples i alguns dels museus més importants del país. A la primavera és un dels millors llocs per veure els cirerers en flor.","address":"Ueno Park, Taito, Tokyo","hours":"No indicat als arxius","duration":"1 h - 2 h","notes":"Tria museu només si et queda energia o adapta el dia.","apple":"https://maps.apple.com/?q=Ueno+Park+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Ueno+Park+Tokyo","wiki":"https://en.wikipedia.org/wiki/Ueno_Park"},{"id":"d3-7","group":"d3","order":1,"name":"Yasukuni Shrine","cat":"santuari","tags":["santuari","història"],"desc":"Santuari xintoista fundat el 1869 per honrar els soldats japonesos morts en conflictes des de l'era Meiji. És un lloc de gran bellesa però també controvertit, ja que hi ha venerats criminals de guerra de classe A, fet que genera tensions diplomàtiques amb la Xina i Corea del Sud.","address":"3-1-1 Kudankita, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Té càrrega històrica i política; visita amb context.","apple":"https://maps.apple.com/?q=Yasukuni+Shrine+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Yasukuni+Shrine+Tokyo","wiki":"https://en.wikipedia.org/wiki/Yasukuni_Shrine"},{"id":"d3-6","group":"d3","order":2,"name":"Chidorigafuchi Moat","cat":"sakura","tags":["sakura","natura","passeig"],"desc":"Tram del fossat exterior del castell d'Edo, envoltat d'un passeig arbrat popular per llogar barques de rem, i un dels millors indrets de Tòquio per veure els cirerers en flor a la primavera.","address":"Chidorigafuchi, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Especialment recomanable en temporada de cirerers.","apple":"https://maps.apple.com/?q=Chidorigafuchi+Moat+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Chidorigafuchi+Moat+Tokyo","wiki":null},{"id":"d3-5","group":"d3","order":3,"name":"Imperial Palace / Nijubashi Bridge","cat":"palau","tags":["palau","història","foto"],"desc":"Residència de la família imperial japonesa, aixecada sobre les restes del castell d'Edo. L'accés interior és molt limitat, però el doble pont de Nijubashi és una de les imatges més fotografiades de Tòquio.","address":"1-1 Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Accés interior limitat; aquí la visita és sobretot exterior.","apple":"https://maps.apple.com/?q=Nijubashi+Bridge+Imperial+Palace+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Nijubashi+Bridge+Imperial+Palace+Tokyo","wiki":"https://en.wikipedia.org/wiki/Tokyo_Imperial_Palace"},{"id":"d3-8","group":"d3","order":4,"name":"Wadakura Fountain Park","cat":"parc","tags":["parc","descans"],"desc":"Parc modern amb jocs d'aigua al costat dels antics fossats del castell d'Edo, a tocar del Palau Imperial; un bon punt de descans dins el recorregut històric de Marunouchi.","address":"3-1 Kokyogaien, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"20 - 30 min","notes":"Parada de descans abans de baixar cap a Shimbashi.","apple":"https://maps.apple.com/?q=Wadakura+Fountain+Park+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Wadakura+Fountain+Park+Tokyo","wiki":null},{"id":"d3-4","group":"d3","order":5,"name":"Marunouchi","cat":"arquitectura","tags":["arquitectura","passeig"],"desc":"Districte financer i corporatiu de Tòquio, entre l'estació de Tòquio i el Palau Imperial, amb gratacels moderns que conviuen amb edificis d'inici del segle XX.","address":"Marunouchi, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Passeig curt abans del Palau Imperial.","apple":"https://maps.apple.com/?q=Marunouchi+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Marunouchi+Tokyo","wiki":"https://en.wikipedia.org/wiki/Marunouchi"},{"id":"d3-1","group":"d3","order":6,"name":"Tokyo Station Marunouchi Building","cat":"estació","tags":["estació","arquitectura","història"],"desc":"Inaugurada el 1914, la façana de maó vermell, obra de Kingo Tatsuno, va ser restaurada a la seva aparença original el 2012 després dels danys de la Segona Guerra Mundial. És un dels nusos ferroviaris més importants del Japó.","address":"1 Marunouchi, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Mira’l des de fora i entra després cap a Character/Ramen Street.","apple":"https://maps.apple.com/?q=Tokyo+Station+Marunouchi+Building+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Tokyo+Station+Marunouchi+Building+Tokyo","wiki":"https://en.wikipedia.org/wiki/Tokyo_Station"},{"id":"d3-3","group":"d3","order":7,"name":"Tokyo Ramen Street","cat":"menjar","tags":["menjar","ramen"],"desc":"Corredor gastronòmic dins l'estació de Tòquio amb una selecció curada de restaurants de ramen, cadascun especialitzat en un estil diferent (shoyu, miso, tonkotsu...).","address":"Tokyo Station First Avenue, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Bona opció per dinar; pot haver-hi cues.","apple":"https://maps.apple.com/?q=Tokyo+Ramen+Street+Tokyo+Station","google":"https://www.google.com/maps/search/?api=1&query=Tokyo+Ramen+Street+Tokyo+Station","wiki":null},{"id":"d3-2","group":"d3","order":8,"name":"Tokyo Character Street","cat":"compres","tags":["compres","cultura-pop"],"desc":"Passadís comercial als baixos de l'estació de Tòquio amb botigues oficials dels personatges més populars del Japó (Pokémon, Ghibli, Sanrio i més), ideal per comprar souvenirs de qualitat.","address":"Tokyo Station First Avenue, Chiyoda, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Ideal per souvenirs de personatges japonesos.","apple":"https://maps.apple.com/?q=Tokyo+Character+Street+Tokyo+Station","google":"https://www.google.com/maps/search/?api=1&query=Tokyo+Character+Street+Tokyo+Station","wiki":null},{"id":"d3-9","group":"d3","order":9,"name":"Shimbashi Station SL Square","cat":"foto","tags":["foto","izakaya"],"desc":"Shimbashi va acollir el 1872 la primera estació de ferrocarril del Japó, connectant Tòquio amb Yokohama. A la plaça actual s'hi exposa una locomotora de vapor commemorativa, envoltada de l'ambient d'oficinistes i izakaya after-work.","address":"2 Chome Shinbashi, Minato, Tokyo","hours":"No indicat als arxius","duration":"20 - 30 min","notes":"Bon punt per veure ambient afterwork.","apple":"https://maps.apple.com/?q=SL+Square+Shimbashi+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=SL+Square+Shimbashi+Tokyo","wiki":"https://en.wikipedia.org/wiki/Shimbashi_Station"},{"id":"d3-12","group":"d3","order":10,"name":"Yurikamome Shimbashi Station","cat":"transport","tags":["transport","experiència"],"desc":"Línia de tren automàtic sense conductor que uneix Shimbashi amb l'illa artificial d'Odaiba des de 1995. El recorregut elevat, amb corbes sobre la badia i el Rainbow Bridge, és en si mateix una atracció.","address":"Shimbashi Station, Minato, Tokyo","hours":"No indicat als arxius","duration":"25 - 35 min","notes":"Trajecte panoràmic; intenta agafar seient frontal.","apple":"https://maps.apple.com/?q=Yurikamome+Shimbashi+Station+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Yurikamome+Shimbashi+Station+Tokyo","wiki":"https://en.wikipedia.org/wiki/Yurikamome"},{"id":"d3-11","group":"d3","order":11,"name":"Shiodome / Nittele Ghibli Clock","cat":"ghibli","tags":["ghibli","arquitectura","foto"],"desc":"Antiga zona industrial i ferroviària reconvertida des dels anys 2000 en un districte de gratacels. A la base de la seu de Nippon TV hi ha el 'Nittele Oodokei', un rellotge mecànic gegant dissenyat per Hayao Miyazaki.","address":"Nippon TV Tower, Shiodome, Minato, Tokyo","hours":"No indicat als arxius","duration":"20 - 30 min","notes":"Consulta hores d’animació del rellotge si et fa il·lusió veure’l moure’s.","apple":"https://maps.apple.com/?q=Nittele+Oodokei+Ghibli+Clock+Shiodome+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Nittele+Oodokei+Ghibli+Clock+Shiodome+Tokyo","wiki":"https://en.wikipedia.org/wiki/Shiodome"},{"id":"d3-10","group":"d3","order":12,"name":"Old Shimbashi Station Railway History Exhibition Hall","cat":"museu","tags":["museu","tren","història"],"desc":"Petit museu gratuït construït sobre l'emplaçament original de la primera estació de ferrocarril del Japó (1872), amb una rèplica parcial de l'edifici i peces d'història ferroviària.","address":"1-5-3 Higashishimbashi, Minato, Tokyo","hours":"No indicat als arxius","duration":"30 - 45 min","notes":"Parada curta per fans del ferrocarril.","apple":"https://maps.apple.com/?q=Old+Shimbashi+Station+Railway+History+Exhibition+Hall+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Old+Shimbashi+Station+Railway+History+Exhibition+Hall+Tokyo","wiki":null},{"id":"d3-14","group":"d3","order":13,"name":"Statue of Liberty Odaiba","cat":"foto","tags":["foto","skyline"],"desc":"Rèplica a escala 1:4 de l'Estàtua de la Llibertat de Nova York, instal·lada permanentment el 1998 com a símbol de l'amistat entre França i el Japó.","address":"1 Chome Daiba, Minato, Tokyo","hours":"No indicat als arxius","duration":"15 - 20 min","notes":"Parada fotogràfica curta.","apple":"https://maps.apple.com/?q=Statue+of+Liberty+Odaiba+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Statue+of+Liberty+Odaiba+Tokyo","wiki":"https://en.wikipedia.org/wiki/Statue_of_Liberty_(Odaiba)"},{"id":"d3-13","group":"d3","order":14,"name":"Odaiba Marine Park","cat":"badia","tags":["badia","capvespre","passeig"],"desc":"Illa artificial construïda al segle XIX com a bateries de defensa i convertida des dels anys 90 en un gran centre d'oci a la badia de Tòquio, amb vistes excel·lents del Rainbow Bridge, especialment a la posta de sol.","address":"1 Chome Daiba, Minato, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h","notes":"Arriba cap al capvespre si pots.","apple":"https://maps.apple.com/?q=Odaiba+Marine+Park+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=Odaiba+Marine+Park+Tokyo","wiki":"https://en.wikipedia.org/wiki/Odaiba"},{"id":"d3-15","group":"d3","order":15,"name":"DiverCity Tokyo Plaza Gundam","cat":"gundam","tags":["gundam","compres","espectacle"],"desc":"Centre comercial d'Odaiba conegut per l'estàtua a mida real (18 m) del Unicorn Gundam, icona de la sèrie Mobile Suit Gundam, que s'il·lumina i es transforma diverses vegades al dia.","address":"1-1-10 Aomi, Koto, Tokyo","hours":"No indicat als arxius","duration":"45 min - 1 h 30 min","notes":"Consulta horaris del mini espectacle del Gundam.","apple":"https://maps.apple.com/?q=DiverCity+Tokyo+Plaza+Unicorn+Gundam+Tokyo","google":"https://www.google.com/maps/search/?api=1&query=DiverCity+Tokyo+Plaza+Unicorn+Gundam+Tokyo","wiki":"https://en.wikipedia.org/wiki/DiverCity_Tokyo_Plaza"}],"obs":["No s’han detectat dades contradictòries dins el material facilitat; els llocs repetits de la ruta original ja apareixen fusionats per entrada única.","Quan no hi havia horaris concrets, s’ha marcat com a ‘No indicat als arxius’. Cal revisar webs oficials abans de la visita.","Els temps estimats són orientatius i s’han assignat segons el tipus de visita per fer la guia pràctica."],"routeUrl":"https://www.google.com/maps/dir/35.7148,139.7967/35.7101,139.796/35.7139,139.7906/35.6604,139.7292/35.6657,139.7263/35.665,139.7126/35.659,139.7016/35.6595,139.7005/35.6702,139.7027/35.6764,139.6993/35.6892,139.6917/35.6938,139.6997/35.695,139.7025/35.6938,139.7048/35.6603,139.7633/35.6654,139.7707/35.6693,139.7709/35.6717,139.765/35.6984,139.7731/35.7002,139.7716/35.7011,139.7745/35.7086,139.7745/35.7147,139.7738/35.694,139.7434/35.6875,139.7477/35.6824,139.753/35.6858,139.7595/35.6807,139.7639/35.6812,139.7671/35.68,139.7679/35.68,139.7677/35.6663,139.758/35.6656,139.7592/35.6636,139.7593/35.6614,139.7607/35.6297,139.7731/35.6296,139.7768/35.6253,139.7754"}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const CITY_META = {
+  tokyo:{label:'Tòquio', icon:'🗼'},
+  kyoto:{label:'Kyoto', icon:'⛩️'},
+  osaka:{label:'Osaka', icon:'🐙'}
+};
+const CITIES = ['tokyo'];
+const STORAGE_PREFIX = 'japo_itinerari_visitats_';
+
+const state = {};
+CITIES.forEach(city=>{
+  state[city] = {
+    search:'', group:'all', cat:'all', hideVisited:false,
+    visited: new Set(JSON.parse(localStorage.getItem(STORAGE_PREFIX+city) || '[]'))
+  };
+});
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(city){ localStorage.setItem(STORAGE_PREFIX+city, JSON.stringify([...state[city].visited])); }
+
+function buildPanelSkeleton(city){
+  const meta = CITY_META[city];
+  const cats = [...new Set(DATA[city].places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA[city].groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' · ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  return `
+  <section class="panel-body${city===CITIES[0]?' active':''}" id="panel-${city}" data-city="${city}">
+    <div class="routebar">
+      <a class="routebtn" href="${DATA[city].routeUrl}" target="_blank" rel="noopener">🗺️ Ruta completa de ${meta.label} a Google Maps (${DATA[city].places.length} parades)</a>
+      <span class="routenote">Google Maps limita el nombre de parades per ruta; si no les carrega totes, obre-la igualment i completa la resta amb els botons de cada lloc.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca a ${meta.label}: lloc, barri, nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els dies/blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div class="js-groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA[city].obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  </section>`;
+}
+
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(city, p, idx){
+  const done = state[city].visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${idx+1}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(city){
+  const el = document.querySelector(`#panel-${city} .js-groups`);
+  const groups = DATA[city].groups;
+  let html = '';
+  groups.forEach(g=>{
+    const placesInGroup = DATA[city].places.filter(p=>p.group===g.id);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map((p,i)=>placeCard(city,p,i)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(city){
+  const s = state[city];
+  const panel = document.getElementById(`panel-${city}`);
+  const places = panel.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state[city].visited.has(id);
+    let ok = true;
+    if(s.search && !hay.includes(s.search)) ok = false;
+    if(s.group!=='all' && group!==s.group) ok = false;
+    if(s.cat!=='all' && cat!==s.cat.toLowerCase()) ok = false;
+    if(s.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  panel.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  panel.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA[city].places.length;
+  const doneCount = state[city].visited.size;
+  panel.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  panel.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  panel.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePanel(city){
+  const panel = document.getElementById(`panel-${city}`);
+  panel.querySelector('.js-search').addEventListener('input', e=>{ state[city].search = e.target.value.trim().toLowerCase(); applyFilters(city); });
+  panel.querySelector('.js-group').addEventListener('change', e=>{ state[city].group = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-cat').addEventListener('change', e=>{ state[city].cat = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-hide').addEventListener('click', e=>{
+    state[city].hideVisited = !state[city].hideVisited;
+    e.target.classList.toggle('on', state[city].hideVisited);
+    e.target.setAttribute('aria-pressed', String(state[city].hideVisited));
+    applyFilters(city);
+  });
+  panel.addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const s = state[city];
+    if(s.visited.has(id)) s.visited.delete(id); else s.visited.add(id);
+    saveVisited(city);
+    const card = btn.closest('.place');
+    const done = s.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters(city);
+  });
+}
+
+function initCity(city){
+  renderGroups(city);
+  wirePanel(city);
+  applyFilters(city);
+}
+
+// build all panels
+const panelsRoot = document.getElementById('panels');
+CITIES.forEach(city=>{ panelsRoot.insertAdjacentHTML('beforeend', buildPanelSkeleton(city)); });
+CITIES.forEach(initCity);
+
+// tabs
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tabbtn');
+  if(!btn) return;
+  const city = btn.dataset.city;
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b===btn));
+  document.querySelectorAll('.panel-body').forEach(p=>p.classList.toggle('active', p.dataset.city===city));
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

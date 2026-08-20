@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Nara — Ciutat, Hōryū-ji i la prefectura</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem;flex-basis:100%}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Extret de dos podcasts de japonismo · guia interactiva autosuficient</div>
+<h1>🦌 Itinerari de Nara — Ciutat, Hōryū-ji i la prefectura</h1>
+<p class="subtitle">Combina la guia clàssica de Nara ciutat (el Parc dels cérvols, Tōdai-ji, Kasuga Taisha, Kōfuku-ji, Naramachi) amb els descobriments d'un fam trip que va anar «més enllà de la Nara típica»: Hōryū-ji, el Mont Yoshino, i una llarga excursió per la prefectura (Tenri, Murō, Shimoichi, Dorogawa Onsen, Asuka i Yamato Kōriyama). Cada bloc geogràfic té el seu propi botó de ruta.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir de dues transcripcions de podcasts de japonismo, ampliades amb les webs oficials de turisme de Nara (visitnara.jp) i Viquipèdia per a adreces, horaris i coordenades. Verifiqueu horaris, preus i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"nara-ciutat","label":"Parc de Nara i els grans temples","sub":"Quimono → Parc de Nara → Tōdai-ji → Saló Nigatsudō → Kasuga Taisha → Kōfuku-ji → Museu Nacional de Nara"},{"id":"naramachi","label":"Naramachi — el barri tradicional","sub":"Naramachi → Nakatanidou → Museu d'Artesania de Nara → Edifici Shika Saru Kitsune"},{"id":"horyuji","label":"Hōryū-ji — extensió a Ikaruga","sub":"El temple de fusta més antic del món, a uns 10 km al sud-oest de Nara (línia JR Yamatoji)"},{"id":"yoshino","label":"Mont Yoshino — el gran mirador dels cirerers","sub":"A uns 30 km al sud de la ciutat de Nara, ja dins la prefectura"},{"id":"prefectura","label":"Més enllà del típic: excursió per la prefectura de Nara","sub":"Tenri → Murō (Bosc d'Art + Murō-ji) → Shimoichi → Dorogawa Onsen → Asuka (Okadera) → Yamato Kōriyama"}],"routes":[{"id":"nara-ciutat","label":"🗺️ Ruta pel Parc de Nara i Naramachi","groups":["nara-ciutat","naramachi"],"url":"https://www.google.com/maps/dir/34.6847,135.8420/34.6851,135.8430/34.6889,135.8398/34.6906,135.8422/34.6814,135.8481/34.6837,135.8302/34.6836,135.8375/34.6791,135.8296/34.6812,135.8286/34.6795,135.8280/34.6795,135.8290"},{"id":"prefectura","label":"🗺️ Ruta d'un dia per la prefectura de Nara (amb cotxe)","groups":["prefectura"],"url":"https://www.google.com/maps/dir/34.5893,135.8385/34.5380,136.0325/34.5177,136.0285/34.3286,135.7807/34.2635,135.8769/34.4569,135.8271/34.6489,135.7822"}],"places":[{"id":"kimono-nara","group":"nara-ciutat","order":1,"name":"Experiència de quimono al Parc de Nara","cat":"activitat","priority":"mitjana","tags":["quimono","fotos","terminal d'autobusos"],"desc":"A la terminal d'autobusos del Parc de Nara hi ha diverses botigues de lloguer de quimono amb desenes d'opcions: des d'un pla bàsic (quimono, obi i pentinat opcional) per uns 3.000 ¥ fins a furisode amb hakama per ocasions especials per uns 16.000 ¥. Inclouen sori (sandàlies) còmodes i, si teniu fred, bufandes i xals sense cost addicional. Es pot passejar amb el quimono fins a l'hora de tancament de la botiga.","address":"Terminal d'autobusos del Parc de Nara, Kasugano-cho, Nara, Nara","hours":"No indicat als arxius","duration":"Es pot llogar per hores o per tot el dia","notes":"La terminal té una terrassa/azotea amb bones vistes; és un bon lloc per fer-hi fotos a la posta de sol. El disseny del quimono deixa la nuca al descobert: si teniu fred, demaneu-hi una bufanda.","apple":"https://maps.apple.com/?q=Nara+Park+Bus+Terminal","google":"https://www.google.com/maps/search/?api=1&query=Nara+Park+Bus+Terminal","wiki":null},{"id":"nara-koen","group":"nara-ciutat","order":2,"name":"Parc de Nara","cat":"parc","priority":"alta","tags":["cérvols sagrats","imprescindible","shika senbei"],"desc":"El centre neuràlgic del turisme a Nara: un gran parc on viuen en llibertat més de mil cérvols sika (shika), considerats mensatgers dels déus segons el sintoisme. A diferència de Miyajima, aquí sí que es permet donar-los de menjar galetes especials (shika senbei) que es venen en parades per tot el parc.","address":"Nara Kōen, Nara, Nara 630-8211","hours":"Accés lliure, obert tot el dia","duration":"Mig dia si es combina amb Tōdai-ji i Kasuga Taisha","notes":"Si un cérvol es queda sense galeta per oferir-li, mostreu-li les dues mans obertes i buides: sol funcionar per fer-li entendre que no en teniu més. Vigileu bosses i mapes que sobresurtin de butxaques o motxilles: se'ls mengen.","apple":"https://maps.apple.com/?q=Nara+Park","google":"https://www.google.com/maps/search/?api=1&query=Nara+Park","wiki":"https://en.wikipedia.org/wiki/Nara_Park"},{"id":"todaiji","group":"nara-ciutat","order":3,"name":"Tōdai-ji","cat":"temple","priority":"alta","tags":["imprescindible","gran buda","fusta més gran del món"],"desc":"El gran temple de Nara i, per muts, «el lloc» que cal veure sí o sí. S'hi entra per la puerta Nandaimon (1199, Tresor Nacional, amb els guardians Niō a banda i banda) i es continua fins al Saló Daibutsuden, l'estructura de fusta més gran del món —tot i que l'actual reconstrucció és només un 33% més petita que l'edifici original—, on hi ha la gran estàtua de bronze del Buda assegut (Daibutsu), de 15 m d'alçada i 500 tones de pes. Un dels pilars de fusta té un forat de la mida del forat del nas del Buda: es diu que qui hi passa pel forat assoleix la il·luminació en la seva propera vida.","address":"406-1 Zōshi-chō, Nara, Nara 630-8211","hours":"7:30-17:30 (abril-octubre); 8:00-17:00 (novembre-març)","duration":"1-1,5 hores","notes":"Hi ha una entrada combinada amb el Museu Tōdai-ji. Dins del Daibutsuden hi ha una maqueta que mostra com era el temple original, molt més ample i amb dues pagodes laterals de 100 m d'alçada.","apple":"https://maps.apple.com/?q=Todai-ji+Nara","google":"https://www.google.com/maps/search/?api=1&query=Todai-ji+Nara","wiki":"https://en.wikipedia.org/wiki/T%C5%8Ddai-ji"},{"id":"nigatsudo","group":"nara-ciutat","order":4,"name":"Saló Nigatsudō","cat":"mirador","priority":"mitjana","tags":["vistes de nara","omizutori","festival del foc"],"desc":"Part del complex de Tōdai-ji, aquest saló té un balcó amb vistes precioses sobre la ciutat de Nara. És l'escenari del festival budista Omizutori (Shuni-e), que se celebra cada any des de fa més de 1.250 anys durant les dues primeres setmanes de març; el ritual més popular, l'Otaimatsu, consisteix a encendre antorxes gegants de 6-8 m que els portadors fan córrer pel balcó fent caure espurnes de foc, que es diu que porten bona sort.","address":"406-1 Zōshi-chō, Nara, Nara 630-8211 (dins el recinte de Tōdai-ji)","hours":"Omizutori: dues primeres setmanes de març, amb el ritual més llarg el 12 de març cap a les 19:30","duration":"20-30 min (més si coincideix amb l'Omizutori)","notes":"El 15 d'agost, dia del Chugen Mantoro de Kasuga Taisha, també es pot veure des del Parc de Nara el Daimonji: un kanji gegant encès a la muntanya, similar al més famós de Kyoto.","apple":"https://maps.apple.com/?q=Nigatsu-do+Todaiji+Nara","google":"https://www.google.com/maps/search/?api=1&query=Nigatsu-do+Todaiji+Nara","wiki":null},{"id":"kasuga-taisha","group":"nara-ciutat","order":5,"name":"Kasuga Taisha","cat":"santuari","priority":"alta","tags":["imprescindible","llanternes de pedra","mantoro"],"desc":"Un dels santuaris sintoistes més antics del Japó, datat de l'any 768, fundat per la família Fujiwara, la més poderosa del període Heian. El seu tret més distintiu són les gairebé 2.000 llanternes de pedra que flanquegen els camins d'accés, més 1.000 llanternes de bronze al saló principal; normalment estan apagades, però s'encenen durant el festival Mantoro (3 de febrer, Setsubun Mantoro, i 14-15 d'agost, Chugen Mantoro), de 19:00 a 21:00.","address":"160 Kasugano-cho, Nara, Nara 630-8212","hours":"6:00-18:00 (abril-setembre); 6:30-17:00 (octubre-març)","duration":"45 min - 1 hora","notes":"El recinte principal té entrada de pagament, però es pot veure gratis des de fora. Dins hi ha una sala fosca on s'exposen permanentment les llanternes de bronze enceses, per fer-se una idea de com és el Mantoro fora de temporada.","apple":"https://maps.apple.com/?q=Kasuga+Taisha+Nara","google":"https://www.google.com/maps/search/?api=1&query=Kasuga+Taisha+Nara","wiki":"https://en.wikipedia.org/wiki/Kasuga-taisha"},{"id":"kofukuji","group":"nara-ciutat","order":6,"name":"Kōfuku-ji","cat":"temple","priority":"alta","tags":["pagoda de cinc pisos","unkei","família fujiwara"],"desc":"Un dels set grans temples de Nara, construït l'any 669 com a temple familiar dels Fujiwara. Destaca la seva pagoda de cinc pisos (reconstruïda el 1426), la segona més alta del Japó, només 7 m més baixa que la del Tō-ji de Kyoto. També té el Saló Octogonal Nord (1210, Tresor Nacional) i el Sud (1741), i alberga diverses escultures d'Unkei, un dels grans escultors budistes del període Kamakura, conegut per introduir un realisme espectacular en les figures de monjos i budes.","address":"48 Noboriōji-cho, Nara, Nara 630-8213","hours":"9:00-17:00","duration":"45 min - 1 hora","notes":"El Saló Daurat Central es va acabar de reconstruir el 2018 després d'anys d'obres; la pagoda de tres pisos (1185-1274) també és Tresor Nacional.","apple":"https://maps.apple.com/?q=Kofuku-ji+Nara","google":"https://www.google.com/maps/search/?api=1&query=Kofuku-ji+Nara","wiki":"https://en.wikipedia.org/wiki/K%C5%8Dfuku-ji"},{"id":"nara-museum","group":"nara-ciutat","order":7,"name":"Museu Nacional de Nara","cat":"museu","priority":"mitjana","tags":["art budista","període asuka i nara"],"desc":"Museu especialitzat en art budista japonès, amb peces dels períodes Asuka i Nara, ideal per aprofundir en l'escultura i les pintures que es veuen (però sovint no es poden fotografiar) als temples de la ciutat.","address":"50 Noboriōji-cho, Nara, Nara 630-8213","hours":"9:30-17:00 (fins a les 19:00 divendres i dissabtes en algunes èpoques); tancat dilluns","duration":"1-1,5 hores","notes":"Bona opció per completar la visita si us interessa l'art budista i teniu temps després de Kōfuku-ji, que hi és pràcticament al costat.","apple":"https://maps.apple.com/?q=Nara+National+Museum","google":"https://www.google.com/maps/search/?api=1&query=Nara+National+Museum","wiki":"https://en.wikipedia.org/wiki/Nara_National_Museum"},{"id":"naramachi","group":"naramachi","order":1,"name":"Naramachi","cat":"barri","priority":"alta","tags":["barri tradicional","cases d'època edo","megawarizaru"],"desc":"L'antic barri mercantil de Nara, ple de carrerons estrets, molts de vianants, amb cases tradicionals de l'època Edo reconvertides en botigues d'artesania, cafeteries i restaurants. És fàcil viatjar en el temps només passejant-hi, sense necessitat d'entrar enlloc.","address":"Naramachi, Nara, Nara","hours":"Accés lliure; els comerços solen obrir d'11:00 a 18:00 aprox.","duration":"1,5-2 hores passejant","notes":"Fixeu-vos en els megawarizaru penjats a les portes de moltes cases i botigues: petits ninots de tela en forma de mico que es pengen per protecció i bona sort; és un souvenir típic de la zona.","apple":"https://maps.apple.com/?q=Naramachi+Nara","google":"https://www.google.com/maps/search/?api=1&query=Naramachi+Nara","wiki":null},{"id":"nakatanidou","group":"naramachi","order":2,"name":"Nakatanidou","cat":"activitat","priority":"mitjana","tags":["mochi tsuki","viral a tiktok","yomogi mochi"],"desc":"Confiteria tradicional feta viral a TikTok i Instagram pel seu espectacle de mochitsuki: dos artesans piquen el mochi a una velocitat vertiginosa amb grans malls de fusta. El seu yomogi mochi (mochi d'artemisa, verd) farcit d'anko (pasta de mongeta vermella amb tros sencers, no només purè) és molt recomanable i barat (uns 130-200 ¥ la unitat).","address":"29 Hashimoto-cho, Nara, Nara 630-8217","hours":"10:00-19:00","duration":"15-20 min (més si voleu veure l'espectacle de mochitsuki, que no té horari fix)","notes":"Només accepten efectiu. És fàcil de trobar: busqueu la cua de gent a la porta.","apple":"https://maps.apple.com/?q=Nakatanidou+Nara","google":"https://www.google.com/maps/search/?api=1&query=Nakatanidou+Nara","wiki":null},{"id":"craft-museum","group":"naramachi","order":3,"name":"Museu d'Artesania de Nara (Nara Craft Museum)","cat":"museu","priority":"baixa","tags":["pinzells i tinta","ventalls","kokeshi"],"desc":"Petit museu dedicat a l'artesania tradicional de Nara: els seus famosos pinzells i tinta de cal·ligrafia (considerats dels millors del Japó), ventalls amb un disseny propi diferent dels de Kyoto, i nines de fusta esculpides a mà en què encara es veuen les marques del cisell, a diferència de les kokeshi més llises d'altres regions.","address":"1-1 Azemame-cho, Nara, Nara 630-8346","hours":"10:00-18:00 (última entrada 17:30); tancat dilluns","duration":"30-45 min","notes":"Entrada gratuïta. Té una botiga amb peces d'artesania local, un bon lloc per comprar records.","apple":"https://maps.apple.com/?q=Nara+Craft+Museum","google":"https://www.google.com/maps/search/?api=1&query=Nara+Craft+Museum","wiki":null},{"id":"shika-saru-kitsune","group":"naramachi","order":4,"name":"Edifici Shika Saru Kitsune","cat":"carrer comercial","priority":"baixa","tags":["botigues d'artesania","cafeteria de especialitat","edifici tradicional reconvertit"],"desc":"Complex de diversos edificis històrics connectats per jardins interiors, reconvertits en negocis actuals: una botiga d'artesania, una cafeteria de cafè d'especialitat i un restaurant. El nom («cérvol, mico i guineu») fa referència als tres animals que fan de logo dels diferents negocis de l'edifici.","address":"22 Ganrin-in-cho, Nara, Nara 630-8221","hours":"Varia segons el negoci; la majoria obren d'11:00 a 18:00","duration":"30-45 min","notes":"Molt a prop de l'estanyol Sarusawa; és fàcil deixar-s'hi els diners a la botiga d'artesania.","apple":"https://maps.apple.com/?q=Nara+Naramachi","google":"https://www.google.com/maps/search/?api=1&query=Nara+Naramachi","wiki":null},{"id":"horyuji","group":"horyuji","order":1,"name":"Hōryū-ji","cat":"temple","priority":"alta","tags":["temple de fusta més antic del món","unesco","príncep shotoku"],"desc":"El temple de fusta més antic del món encara dempeus, completat l'any 607 per encàrrec del príncep Shōtoku. La seva pagoda de cinc pisos, de 33 m d'alçada, i el Saló Kondō mostren influències xineses i coreanes de l'època; a l'interior del Kondō hi ha obres del període Asuka (segles VI-VIII) de l'escultor Tori Busshi, com la triada d'Asaka. Patrimoni de la Humanitat per la UNESCO.","address":"1-1 Hōryūji Sannai, Ikaruga, Ikoma District, Nara 636-0115","hours":"8:00-17:00 (febrer-novembre); 8:00-16:30 (novembre-febrer)","duration":"1,5-2 hores","notes":"El primer temple es va cremar per un llamp l'any 670 i es va reconstruir entre el 670 i el 700, orientant-lo lleugerament cap al nord-oest respecte a l'original. Excavacions properes han confirmat que el palau del príncep Shōtoku ocupava l'extrem oriental del recinte actual del temple. No es pot entrar a la pagoda, només es veu des de fora.","apple":"https://maps.apple.com/?q=Horyu-ji+Ikaruga","google":"https://www.google.com/maps/search/?api=1&query=Horyu-ji+Ikaruga","wiki":"https://en.wikipedia.org/wiki/H%C5%8Dry%C5%AB-ji"},{"id":"yoshino","group":"yoshino","order":1,"name":"Mont Yoshino","cat":"mirador","priority":"alta","tags":["30.000 cirerers","hanami","telefèric"],"desc":"Muntanya amb un poblet a la seva vessant, coberta per uns 30.000 cirerers de diverses varietats (molts yamazakura, cirerers de muntanya), amb els primers arbres plantats fa més de 1.300 anys. És, de manera tradicional, un dels grans llocs de contemplació de cirerers en flor del Japó, tot i que avui dia queda una mica eclipsat per Kyoto i Tòquio en popularitat entre turistes estrangers.","address":"Yoshinoyama, Yoshino, Yoshino District, Nara 639-3115","hours":"Accés lliure; millor floració normalment a principis-mitjans d'abril","duration":"Mig dia","notes":"Es pot pujar amb telefèric des de la base de la muntanya fins a la primera zona. Prop de la porta Niōmon es pot tastar el kakinoha-zushi, el sushi típic de la zona (caballa o salmó) embolicat en fulla de caqui (que no es menja, només conserva el peix).","apple":"https://maps.apple.com/?q=Mount+Yoshino+Nara","google":"https://www.google.com/maps/search/?api=1&query=Mount+Yoshino+Nara","wiki":"https://en.wikipedia.org/wiki/Mount_Yoshino"},{"id":"tenri-bunkamura","group":"prefectura","order":1,"name":"Nara Rekishi Geijutsu Bunka Mura (Complex de Cultura i Història)","cat":"museu","priority":"baixa","tags":["restauració de patrimoni","poc conegut pel turisme estranger","michi-no-eki"],"desc":"Michi-no-eki (àrea de servei/mercat local) i centre on es pot veure en directe com es restauren béns culturals japonesos: estructures històriques, restes arqueològiques, pintures i cal·ligrafia, i escultura budista. Es pot veure artesans treballant, per exemple, en la restauració d'una pintura del període Heian o d'un guardià Niō de mida gran d'algun temple proper.","address":"437-3 Somanouchi-cho, Tenri, Nara 632-0032","hours":"9:00-17:00 (última entrada 16:30); tancat dilluns","duration":"1-1,5 hores","notes":"La visita al taller de restauració és gratuïta. Té una botiga (michi-no-eki) amb molta artesania local, sobretot de fusta i ceràmica. Poc conegut pel turisme occidental, tot i estar a només uns 15-20 min de Nara.","apple":"https://maps.apple.com/?q=Nara+History+and+Art+Culture+Village+Tenri","google":"https://www.google.com/maps/search/?api=1&query=Nara+History+and+Art+Culture+Village+Tenri","wiki":null},{"id":"muro-art-forest","group":"prefectura","order":2,"name":"Bosc d'Art Murō (Murou Art Forest)","cat":"parc","priority":"mitjana","tags":["escultures a la muntanya","instagramable","difícil accés sense cotxe"],"desc":"Parc d'escultures d'estil modern situat a la muntanya, en el que sembla una petita vall envoltada de muntanyes. Les obres es mimetitzen amb la natura: n'hi ha, per exemple, que són túnels pels quals es pot entrar i baixar per sota per després tornar a sortir. S'ha popularitzat a xarxes socials per ser molt fotogènic.","address":"181 Murou, Uda, Nara 633-0421","hours":"10:00-17:00 (abril-octubre); 10:00-16:00 (març, novembre, desembre); tancat dimarts","duration":"1-1,5 hores","notes":"Costa d'arribar sense cotxe de lloguer: els autobusos hi tenen molt poca freqüència. Alternativa: una caminada de senderisme de unes 2 hores des de l'estació de tren de Muroguchi-Ono. Entrada: 410 ¥ adults (només efectiu).","apple":"https://maps.apple.com/?q=Murou+Art+Forest","google":"https://www.google.com/maps/search/?api=1&query=Murou+Art+Forest","wiki":null},{"id":"murouji","group":"prefectura","order":3,"name":"Templo Murō-ji","cat":"temple","priority":"mitjana","tags":["el koyasan de les dones","momiji","escalons infinits"],"desc":"Conegut com «el Monte Kōya de les dones», perquè, a diferència d'altres temples i camins del Monte Kōya que històricament prohibien l'accés a les dones (alguns encara ho fan avui dia, com el camí sagrat al Mont Ōmine), Murō-ji sempre les hi ha admès, i es va convertir en el lloc on podien fer la seva pròpia peregrinació. El complex s'estén per la vessant de la muntanya, amb diversos salons principals i una pagoda; a la tardor, amb els arbres de momiji, l'entorn és espectacular.","address":"78 Murou, Uda, Nara 633-0421","hours":"8:30-17:00 (abril-novembre); 9:00-16:00 (desembre-març)","duration":"1-1,5 hores (té molts esglaons per la vessant de la muntanya)","notes":"Es pot comprar un goshuin (segell/cal·ligrafia commemorativa) amb disseny especial de tardor, en paper retallat. El complex és gran: si aneu justos de temps, decidiu abans fins on voleu pujar.","apple":"https://maps.apple.com/?q=Murou-ji+Uda","google":"https://www.google.com/maps/search/?api=1&query=Murou-ji+Uda","wiki":"https://en.wikipedia.org/wiki/Mur%C5%8D-ji"},{"id":"kito-shimoichi","group":"prefectura","order":4,"name":"KITO Forest Market Shimoichi","cat":"altres","priority":"baixa","tags":["antiga escola reconvertida","fusta local","obert el 2024"],"desc":"Antiga escola de primària reconvertida en un espai comercial i cultural: la planta baixa és botiga, la primera planta espai d'exposicions, i també hi ha sales d'events i un espai de coworking, mantenint l'estructura original de les aules i part del mobiliari (com els rentamans dels nens). Va obrir el juliol de 2024.","address":"Shimoichi, Yoshino District, Nara 638-0003","hours":"No indicat als arxius","duration":"30-45 min","notes":"Interessant sobretot si aneu amb cotxe i us interessa veure com es reaprofiten edificis rurals abandonats per la despoblació; per accés a peu/transport públic no és tan pràctic.","apple":"https://maps.apple.com/?q=Shimoichi+Nara","google":"https://www.google.com/maps/search/?api=1&query=Shimoichi+Nara","wiki":null},{"id":"dorogawa-onsen","group":"prefectura","order":5,"name":"Dorogawa Onsen","cat":"barri","priority":"mitjana","tags":["poble balneari","farolets","porta d'entrada al mont ōmine"],"desc":"Petit poble balneari (onsen) als peus del mont sagrat Ōmine, ple de faroles enceses de nit que li donen un ambient molt especial. Té coves, ponts penjants entre muntanyes i diversos onsen tradicionals, alguns molt petits amb reserva privada mitjançant un cartell de fusta a l'entrada.","address":"Dorogawa, Tenkawa, Yoshino District, Nara 638-0431","hours":"Varia segons l'allotjament/onsen; el centre d'onsen públic obre d'11:00 a 20:00, tancat dimecres","duration":"Una nit (bon lloc per pernoctar)","notes":"Si hi aneu a l'hivern, porteu roba d'abric: es registren temperatures per sota de zero. Molts ryokan tradicionals no tenen bany a l'habitació i cal anar-hi descalç per passadissos freds.","apple":"https://maps.apple.com/?q=Dorogawa+Onsen","google":"https://www.google.com/maps/search/?api=1&query=Dorogawa+Onsen","wiki":"https://en.wikipedia.org/wiki/Mount_Ōmine"},{"id":"omine-nyonin-kekkai","group":"prefectura","order":6,"name":"Entrada al Mont Ōmine (dona-kekkai)","cat":"altres","priority":"baixa","tags":["muntanya sagrada","controvèrsia","prohibit a les dones"],"desc":"El camí de pelegrinació al mont sagrat Ōmine (Patrimoni de la Humanitat), un dels pocs llocs del Japó on encara avui es prohibeix per costum l'accés a les dones (nyonin kekkai). No hi ha cap vigilant que ho faci complir físicament, però hi ha un rètol a l'entrada. La pràctica genera controvèrsia des de fa anys, amb un moviment creixent de dones japoneses que en qüestionen el sentit al segle XXI, i debat sobre si l'Unesco hauria d'haver declarat Patrimoni de la Humanitat un lloc que discrimina la meitat de la població.","address":"Tenkawa, Yoshino District, Nara (prop de Dorogawa Onsen)","hours":"No indicat als arxius","duration":"Uns 45 min a peu (o 6-8 min amb cotxe) des del poble de Dorogawa fins a l'entrada del camí","notes":"És només el punt d'entrada al camí de pelegrinació, no la cima; pujar-hi és una excursió de senderisme llarga i exigent, no apta per fer-se de passada.","apple":"https://maps.apple.com/?q=Mount+Omine+Nara","google":"https://www.google.com/maps/search/?api=1&query=Mount+Omine+Nara","wiki":null},{"id":"okadera","group":"prefectura","order":7,"name":"Okadera (Ryūgai-ji)","cat":"temple","priority":"mitjana","tags":["estàtua de fang més gran del japó","llegenda del drac","asuka"],"desc":"Temple amb llegendes fascinants: es diu que el seu sacerdot fundador va lluitar contra un drac, el va capturar i el va tancar sota un estany tapat amb una pedra perquè no en pogués sortir mai més. A l'interior hi ha una estàtua de Kannon d'argila del segle VIII, de 5 m d'alçada, la imatge d'argila més gran del Japó; no es permet fer-hi fotos, però val molt la pena entrar-hi a veure-la en directe.","address":"806 Oka, Asuka, Takaichi District, Nara 634-0111","hours":"8:30-17:00 (8:00-16:30 de desembre a finals de febrer)","duration":"30-45 min","notes":"Molt a prop hi ha restaurants on tastar l'asuka-nabe, l'estofat típic de la zona: pollastre local (Yamato), verdures i tofu coents en un brou de llet amb una mica de miso i dashi; es diu que ve d'una recepta de llet portada de la Xina al període Asuka. Prop d'Asuka també es pot fer un taller de ceràmica local en algun dels tallers de la zona.","apple":"https://maps.apple.com/?q=Okadera+Asuka","google":"https://www.google.com/maps/search/?api=1&query=Okadera+Asuka","wiki":"https://en.wikipedia.org/wiki/Oka-dera"},{"id":"yamatokoriyama","group":"prefectura","order":8,"name":"Yamato Kōriyama","cat":"barri","priority":"mitjana","tags":["poble dels peixos de colors","ruïnes del castell","instal·lacions d'art amb kingyo"],"desc":"Ciutat coneguda tradicionalment com un dels grans centres de cria de kingyo (peixos de colors) del Japó, amb instal·lacions d'art per tota la ciutat que reconverteixen objectes quotidians (una cabina de telèfon, una màquina expenedora) en peixeres. Té una ruta de segells coleccionables (com un goshuin però de goma) per diversos negocis, cadascun amb la seva pròpia peixera-obra d'art, i una antiga casa de tenyit d'índigo reconvertida en petit museu del kingyo. També s'hi troben les ruïnes del castell de Kōriyama, un dels pocs castells de la zona i lloc destacat per veure cirerers en flor.","address":"Jōnai-cho, Yamatokōriyama, Nara 639-1011","hours":"No indicat als arxius per als carrers/instal·lacions; el parc del castell té accés lliure","duration":"1-2 hores","notes":"Fa uns anys diverses instal·lacions d'art del poble (com la cabina de telèfon-peixera) van rebre queixes de plagi d'altres obres i es van retirar; el poble sembla haver-se reinventat amb noves instal·lacions i la ruta de segells als darrers anys.","apple":"https://maps.apple.com/?q=Koriyama+Castle+Nara","google":"https://www.google.com/maps/search/?api=1&query=Koriyama+Castle+Nara","wiki":"https://en.wikipedia.org/wiki/K%C5%8Driyama_Castle"}],"obs":["Els llocs d'aquest itinerari s'han extret de dues transcripcions de podcasts de japonismo: la guia clàssica «Qué ver y hacer en Nara» i el relat d'un fam trip («Más allá de la Nara típica») que explora la prefectura més enllà de la ciutat. Adreces, horaris i coordenades s'han completat i verificat amb les webs oficials de turisme de Nara (visitnara.jp), Viquipèdia i altres fonts de viatge.","El bloc de la ciutat (Parc de Nara + Naramachi) es pot fer sencer a peu en un dia (uns 6 km caminant). Hōryū-ji, el Mont Yoshino i l'excursió per la prefectura són extensions independents, cadascuna a una distància diferent de la ciutat: no es recomana combinar-les totes en un sol viatge.","El bloc «Més enllà del típic» reconstrueix la ruta d'un fam trip real fet en minibús/cotxe de lloguer al llarg de dos dies (Tenri → Murō → Yoshino → Shimoichi → Dorogawa i, l'endemà, Asuka → Yamato Kōriyama). Bona part d'aquesta zona té transport públic molt limitat: es recomana explícitament llogar un cotxe si voleu fer-la sencera.","Hōryū-ji i el Mont Yoshino no tenen botó de ruta propi perquè són parades úniques prou allunyades de la resta com per no combinar-se en un mateix trajecte amb cotxe/tren; consulteu l'enllaç de Google Maps de cada fitxa per arribar-hi.","Quan no s'ha trobat una dada concreta a les fonts consultades (horaris, adreces exactes de negocis sense nom explícit als podcasts, etc.), s'ha marcat com «No indicat als arxius»; reviseu sempre les webs oficials abans del viatge, sobretot per a llocs poc turístics com el Bosc d'Art Murō o el KITO Forest Market."]}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'nara_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' — ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const routeButtons = (DATA.routes||[]).map(r=>{
+    const groupIds = r.groups || (r.group ? [r.group] : []);
+    const count = DATA.places.filter(p=>groupIds.includes(p.group)).length;
+    return `<a class="routebtn" href="${r.url}" target="_blank" rel="noopener">${r.label} (${count} parades)</a>`;
+  }).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      ${routeButtons}
+      <span class="routenote">Cada bloc geogràfic té el seu propi botó de ruta a Google Maps. Hōryū-ji i el Mont Yoshino són parades úniques allunyades entre si: consulteu l'enllaç de Google Maps de la seva pròpia fitxa.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>

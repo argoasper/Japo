@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Wakayama — Castell i Kumano Nachi Taisha</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem;flex-basis:100%}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Recerca a japonismo.com i fonts complementàries · guia interactiva autosuficient</div>
+<h1>⛩️ Itinerari de Wakayama — Castell i Kumano Nachi Taisha</h1>
+<p class="subtitle">Dos punts d'ancoratge molt allunyats entre si dins la prefectura de Wakayama: el castell i la ciutat de Wakayama al nord, i el conjunt sagrat de Kumano Nachi Taisha amb les cascades al sud (a la zona del Kumano Kodo). Cada bloc té la seva pròpia ruta a peu/curta i el seu propi botó de mapa; un tercer bloc opcional afegeix els altres dos grans santuaris de Kumano per si voleu ampliar el viatge.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir d'una cerca a japonismo.com (i, on no hi havia article específic, de Viquipèdia i altres blogs de viatge com Japón Secreto). Verifiqueu horaris, preus i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"wakayama-ciutat","label":"Castell de Wakayama i la ciutat","sub":"Castell → Kimii-dera → Wakayama Marina City → Tomogashima (excursió en vaixell)"},{"id":"nachi","label":"Kumano Nachi Taisha i les cascades","sub":"Daimonzaka → Kumano Nachi Taisha → Seiganto-ji → Cascada Nachi, amb Kii-Katsuura com a poble base"},{"id":"altres-santuaris","label":"Amplia la ruta: els altres dos grans santuaris de Kumano","sub":"No demanats expressament, però formen amb Nachi el tradicional «Kumano Sanzan» — Kumano Hongu Taisha i Kumano Hayatama Taisha (Shingu)"}],
+"routes":[{"id":"wakayama-ciutat","label":"🗺️ Ruta pel castell de Wakayama i la ciutat","group":"wakayama-ciutat","url":"https://www.google.com/maps/dir/34.2258,135.1958/34.2276,135.1716/34.185167,135.190028/34.2419,135.1467/34.2519,135.0961"},{"id":"nachi","label":"🗺️ Ruta pel santuari de Nachi i les cascades","group":"nachi","url":"https://www.google.com/maps/dir/33.6283,135.9417/33.6558,135.8827/33.6669,135.8908/33.6694,135.8898/33.6656,135.8917"}],
+"places":[
+{"id":"wakayama-castle","group":"wakayama-ciutat","order":1,"name":"Castell de Wakayama","cat":"monument","priority":"alta","tags":["imprescindible","tokugawa","reconstrucció"],"desc":"Construït entre 1585 i 1586 per Toyotomi Hidenaga sobre un turó, va ser durant el període Edo el centre administratiu del domini Kishu, un dels tres grans dominis Tokugawa —del qual van sortir dos shoguns, Yoshimune i Iemochi. Va quedar destruït pels bombardejos de la Segona Guerra Mundial, i l'actual torre principal (Tenshu), de tres pisos i color blanc, és una reconstrucció de formigó de 1958. Declarat Lloc Històric Nacional el 1931.","address":"3 Ichibancho, Wakayama, Wakayama 640-8146","hours":"No indicat als arxius","duration":"1,5-2 hores","notes":"Fixeu-vos en la porta Okaguchi, Bé Cultural Important des de 1957, i al jardí Nishi-no-Maru, declarat Lloc Pintoresc Nacional el 1987; el castell té un doble fossat alimentat pel riu Kinokawa.","apple":"https://maps.apple.com/?q=Wakayama+Castle","google":"https://www.google.com/maps/search/?api=1&query=Wakayama+Castle","wiki":"https://en.wikipedia.org/wiki/Wakayama_Castle"},
+{"id":"kimiidera","group":"wakayama-ciutat","order":2,"name":"Kimii-dera","cat":"temple","priority":"mitjana","tags":["peregrinació saigoku","kannon","cirerers"],"desc":"Temple fundat cap a l'any 770 segons la llegenda, quan un monjo xinès va trobar una imatge daurada de Kannon al mont Nakusa. És la segona parada de la peregrinació dels 33 temples de Kannon de Saigoku i cap de la secta Kusei Kannon; va sobreviure a la invasió de Toyotomi Hideyoshi de 1585 gràcies a la negociació directa de l'abadessa amb ell.","address":"1 Kimiidera, Wakayama, Wakayama 641-0012","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Té tres fonts sagrades incloses entre les «100 aigües famoses» del Japó (1985) i vistes precioses de la badia de Wakaura; el cirerer Somei-Yoshino del recinte marca cada any l'inici oficial de la primavera a la regió.","apple":"https://maps.apple.com/?q=Kimiidera+Temple+Wakayama","google":"https://www.google.com/maps/search/?api=1&query=Kimiidera+Temple+Wakayama","wiki":"https://en.wikipedia.org/wiki/Kimii-dera"},
+{"id":"marina-city","group":"wakayama-ciutat","order":3,"name":"Wakayama Marina City (Porto Europa)","cat":"activitat","priority":"baixa","tags":["parc temàtic","mercat de peix","onsen"],"desc":"Illa artificial de 49 hectàrees a la badia de Wakaura amb un parc temàtic d'ambientació europea (Porto Europa), un mercat de peix —Kuroshio Ichiba— amb tallat de tonyina en directe, un onsen alimentat per aigua geotèrmica de 1.500 m de profunditat, i un port esportiu amb més de 1.100 amarradors.","address":"Wakaura, Wakayama, Wakayama 640-0102","hours":"No indicat als arxius","duration":"2-3 hores","notes":"Bona opció familiar per combinar amb el castell el mateix dia; a uns 40 minuts en tren de l'aeroport de Kansai.","apple":"https://maps.apple.com/?q=Wakayama+Marina+City","google":"https://www.google.com/maps/search/?api=1&query=Wakayama+Marina+City","wiki":"https://en.wikipedia.org/wiki/Wakayama_Marina_City"},
+{"id":"tomogashima","group":"wakayama-ciutat","order":4,"name":"Tomogashima","cat":"activitat","priority":"mitjana","tags":["illa","excursió en vaixell","ruïnes militars"],"desc":"Illa gairebé deshabitada dins el Parc Nacional de Seto Naikai, coneguda per les seves ruïnes militars ben conservades del període Meiji: bateries d'artilleria, túnels subterranis i un far de 1872 obra del britànic Richard Henry Brunton. El seu ambient d'edificis coberts d'heura li ha valgut comparacions amb «El castell al cel» de Ghibli.","address":"Kada, Wakayama, Wakayama (embarcament al port de Kada)","hours":"Ferri des del port de Kada, aproximadament cada hora; tancat per vacances de Cap d'Any","duration":"Mig dia","notes":"Tren fins a l'estació de Kada (uns 25 min des de Wakayama) i després 20 min a peu o taxi fins al port; el ferri d'anada i tornada costa uns 2.500 ¥.","apple":"https://maps.apple.com/?q=Tomogashima+Island","google":"https://www.google.com/maps/search/?api=1&query=Tomogashima+Island","wiki":null},
+{"id":"daimonzaka","group":"nachi","order":1,"name":"Daimonzaka","cat":"altres","priority":"mitjana","tags":["kumano kodo","nakahechi","sender empedrat"],"desc":"Tram inicial i més fotografiat de la ruta Nakahechi del Kumano Kodo: un sender empedrat de fa segles que serpenteja entre cedres centenaris fins a Kumano Nachi Taisha. És possible llogar-hi vestits del període Heian per fer-hi les fotos.","address":"Nachikatsuura, Higashimuro District, Wakayama","hours":"Accés lliure, sense horari fix","duration":"40-60 min a peu","notes":"S'hi arriba en autobús des de Kii-Katsuura (uns 30 min) o des de Shingu (uns 15 min); porteu calçat còmode, el sender és de pedra i té pendent.","apple":"https://maps.apple.com/?q=Daimonzaka+Nachikatsuura","google":"https://www.google.com/maps/search/?api=1&query=Daimonzaka+Nachikatsuura","wiki":null},
+{"id":"nachi-taisha","group":"nachi","order":2,"name":"Kumano Nachi Taisha","cat":"santuari","priority":"alta","tags":["kumano sanzan","imprescindible","unesco"],"desc":"Un dels tres grans santuaris de Kumano (Kumano Sanzan), amb origen llegendari al segle V, quan es va consagrar la mateixa cascada de Nachi com a divinitat. El Hondo (pavelló principal) està format per cinc sales sintoistes, i al recinte hi ha un alcanfor mil·lenari que es pot travessar per dins.","address":"Nachisan 1, Nachikatsuura, Higashimuro District, Wakayama 649-5301","hours":"No indicat als arxius; museu del tresor amb entrada de 300 ¥","duration":"1-1,5 hores","notes":"Aneu-hi de bon matí per evitar les aglomeracions; l'entrada al recinte principal és gratuïta.","apple":"https://maps.apple.com/?q=Kumano+Nachi+Taisha","google":"https://www.google.com/maps/search/?api=1&query=Kumano+Nachi+Taisha","wiki":"https://en.wikipedia.org/wiki/Kumano_Nachi_Taisha"},
+{"id":"seiganto-ji","group":"nachi","order":3,"name":"Seiganto-ji (pagoda de tres pisos)","cat":"temple","priority":"alta","tags":["pagoda icònica","saigoku kannon","unesco"],"desc":"Temple budista fundat, segons la llegenda, al segle IV pel monjo indi Ragyo Shonin, i primera parada de la peregrinació dels 33 temples de Kannon de Saigoku des de l'any 988. La seva pagoda vermella de tres pisos amb la cascada Nachi al fons és una de les imatges més fotografiades de tot el Japó, Patrimoni de la Humanitat des de 2004.","address":"Nachisan, Nachikatsuura, Higashimuro District, Wakayama 649-5301","hours":"No indicat als arxius","duration":"30-45 min","notes":"Es pot pujar a l'interior de la pagoda pagant una petita entrada; el millor punt de fotos és des de la base, amb la cascada perfectament enquadrada al fons.","apple":"https://maps.apple.com/?q=Seiganto-ji+Nachi","google":"https://www.google.com/maps/search/?api=1&query=Seiganto-ji+Nachi","wiki":"https://en.wikipedia.org/wiki/Seiganto-ji"},
+{"id":"nachi-falls","group":"nachi","order":4,"name":"Cascada Nachi (Nachi-no-taki)","cat":"mirador","priority":"alta","tags":["cascada més alta del japó","imprescindible","natura"],"desc":"Amb 133 metres de caiguda lliure, és la cascada més alta del Japó i està consagrada com a divinitat sintoista (Hiryu Gongen) pel mateix santuari de Nachi Taisha. Un sacerdot hi fa ofrenes cada matí, i des de l'antiguitat s'hi han llançat ascetes shugenja que creien que renaixerien al paradís de Kannon.","address":"Nachisan, Nachikatsuura, Higashimuro District, Wakayama","hours":"No indicat als arxius","duration":"30-45 min","notes":"Podeu beure aigua «sagrada» de la cascada per 100 ¥, dita que allarga la vida; combineu la visita amb Seiganto-ji, ja que des d'allà es veu la millor panoràmica conjunta.","apple":"https://maps.apple.com/?q=Nachi+Falls","google":"https://www.google.com/maps/search/?api=1&query=Nachi+Falls","wiki":"https://en.wikipedia.org/wiki/Nachi_Falls"},
+{"id":"kii-katsuura","group":"nachi","order":5,"name":"Kii-Katsuura","cat":"barri","priority":"mitjana","tags":["base","port de tonyina","onsen"],"desc":"Poble pesquer conegut per ser un dels grans ports de tonyina del Japó i per servir de base habitual per visitar Kumano Nachi Taisha, gràcies als seus onsens vora el mar i la seva bona connexió en tren per la línia Kisei.","address":"Nachikatsuura, Higashimuro District, Wakayama","hours":"No indicat als arxius","duration":"Base per pernoctar","notes":"Bona opció per dormir-hi una nit i combinar la visita a Nachi amb un bany a l'onsen i tonyina fresca per sopar.","apple":"https://maps.apple.com/?q=Kii-Katsuura+Station","google":"https://www.google.com/maps/search/?api=1&query=Kii-Katsuura+Station","wiki":null},
+{"id":"kumano-hongu-taisha","group":"altres-santuaris","order":1,"name":"Kumano Hongu Taisha","cat":"santuari","priority":"baixa","tags":["kumano sanzan","torii més gran del japó"],"desc":"El santuari «principal» dels tres grans de Kumano, situat originàriament en un banc de sorra a la confluència dels rius Kumano i Otonashi; després d'una gran inundació el 1889, les estructures restants es van traslladar a l'emplaçament actual el 1891. Just al costat hi ha Oyunohara, on encara es dreça el torii més gran del Japó (33,9 m d'alçada), aixecat el 2000 al lloc del santuari original.","address":"Hongucho Hongu, Tanabe, Wakayama 647-1731","hours":"No indicat als arxius","duration":"1-1,5 hores","notes":"És el punt d'arribada tradicional de totes les rutes del Kumano Kodo; a uns 60 km de Nachi per carretera.","apple":"https://maps.apple.com/?q=Kumano+Hongu+Taisha","google":"https://www.google.com/maps/search/?api=1&query=Kumano+Hongu+Taisha","wiki":"https://en.wikipedia.org/wiki/Kumano_Hong%C5%AB_Taisha"},
+{"id":"kumano-hayatama-taisha","group":"altres-santuaris","order":2,"name":"Kumano Hayatama Taisha","cat":"santuari","priority":"baixa","tags":["kumano sanzan","shingu"],"desc":"El tercer dels grans santuaris de Kumano, a la vora del riu Kumano a la ciutat de Shingu, connectat als altres dos per l'antiga xarxa de camins de pelegrinatge Kumano Sankeimichi.","address":"1 Shingu, Wakayama 647-0081","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Combineu-lo amb una passejada per Shingu, a uns 15 minuts en autobús de Nachi Taisha.","apple":"https://maps.apple.com/?q=Kumano+Hayatama+Taisha","google":"https://www.google.com/maps/search/?api=1&query=Kumano+Hayatama+Taisha","wiki":"https://en.wikipedia.org/wiki/Kumano_Hayatama_Taisha"}
+],
+"obs":["Els llocs del bloc del castell i del bloc de Nachi s'han trobat cercant a japonismo.com; com que japonismo no té articles monogràfics sobre el castell de Wakayama, Kimii-dera, Marina City o Tomogashima, aquests s'han ampliat amb Japón Secreto, Viquipèdia i les webs oficials de turisme de Wakayama.","Els dos blocs principals estan a més de 170 km de distància (unes 2,5-3 hores en tren): no es poden combinar en un sol dia, per això cada bloc té el seu propi botó de ruta a Google Maps.","Quan no hi havia horaris concrets a les fonts consultades, s'ha marcat com «No indicat als arxius»; cal revisar les webs oficials abans de la visita.","El tercer bloc (Kumano Hongu Taisha i Kumano Hayatama Taisha) no es va demanar expressament, però s'inclou perquè formen amb Nachi Taisha el conjunt tradicional del «Kumano Sanzan»; no tenen botó de ruta propi perquè normalment es visiten com a etapes soltes del Kumano Kodo, no com una excursió des de Nachi."],
+"routeUrlLegacy":null}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'wakayama_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' · ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const routeButtons = (DATA.routes||[]).map(r=>{
+    const count = DATA.places.filter(p=>p.group===r.group).length;
+    return `<a class="routebtn" href="${r.url}" target="_blank" rel="noopener">${r.label} (${count} parades)</a>`;
+  }).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      ${routeButtons}
+      <span class="routenote">Els dos blocs estan a més de 170 km de distància: cada un té el seu propi botó de ruta. El bloc opcional dels altres santuaris de Kumano no en té: consulteu el mapa de cada fitxa.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>

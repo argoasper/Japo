@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerari Nikko — Santuaris, temples i el Parc Nacional</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem;flex-basis:100%}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Extret del podcast de japonismo · guia interactiva autosuficient</div>
+<h1>⛩️ Itinerari de Nikko — Santuaris, temples i el Parc Nacional</h1>
+<p class="subtitle">Al nord de Tòquio, envoltat de muntanyes i boscos: el conjunt Patrimoni Mundial de la UNESCO amb el santuari Tōshōgū, el pont sagrat Shinkyo, Futarasan i el mausoleu Taiyūin-byō, més l'extensió cap al llac Chūzenji i les aigües termals del Parc Nacional de Nikko.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir d'una transcripció del podcast de japonismo sobre Nikko, ampliada amb fonts com kanpai-japan.com, japan-guide.com, visitnikko.jp i nikko-kankou.org per a adreces, horaris i preus. Verifiqueu sempre horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"toshogu","label":"Santuari Tōshōgū","sub":"El mausoleu de Tokugawa Ieyasu, patrimoni de la humanitat per la Unesco"},{"id":"futarasan","label":"Futarasan i el mausoleu Taiyūin-byō","sub":"Futarasan → pont Shinkyō → Taiyūin-byō → temple Rinnō-ji"},{"id":"mes-nikko","label":"Més coses per veure al nucli de Nikko","sub":"Abisme de Kanmangafuchi → Jardí Botànic → Vil·la Imperial Tamozawa"},{"id":"parc-nacional","label":"Extensió: Parc Nacional de Nikko","sub":"Llac Chūzenji → Nikko Yumoto Onsen → Kinugawa/Kawamata Onsen"},{"id":"tornada","label":"De tornada cap a Tòquio: Utsunomiya","sub":"Parada tècnica per tastar les famoses gyoza d'Utsunomiya"}],"routes":[{"id":"nikko-centre","label":"🗺️ Ruta pel nucli de Nikko","groups":["toshogu","futarasan","mes-nikko"],"url":"https://www.google.com/maps/dir/36.7524,139.5983/36.7581,139.5993/36.7627,139.5949/36.7602,139.5966/36.7565,139.5978/36.7495,139.6069/36.7477,139.5919/36.7500,139.5933"},{"id":"parc-nacional","label":"🗺️ Ruta pel Parc Nacional de Nikko","groups":["parc-nacional"],"url":"https://www.google.com/maps/dir/36.7333,139.4794/36.8103,139.3970/36.8206,139.7495"}],"places":[{"id":"toshogu","group":"toshogu","order":1,"name":"Santuari Tōshōgū","cat":"santuari","priority":"alta","tags":["imprescindible","mausoleu de tokugawa ieyasu","tres micos"],"desc":"El gran santuari de Nikko i el mausoleu de Tokugawa Ieyasu, el primer shōgun del període Edo. Encara que sigui un santuari sintoista, la seva decoració —tallats de fusta, colors saturats, daurats— és tan recarregada i espectacular que sembla gairebé barroca; el seu net Iemitsu el va ampliar i decorar profusament en honor seu, quan el poder Tokugawa ja estava consolidat. S'entra per un torii de pedra de 1618 i una plaça amb una pagoda de cinc pisos (oberta al públic només ocasionalment). A la zona d'antics magatzems hi ha dues talles de fusta que no us podeu perdre: els «tres micos savis» (el que no veu, el que no diu i el que no sent el mal, avui coneguts a tot el món com a emojis) i, just davant, els «elefants imaginats», tallats per un artesà que mai havia vist un elefant de veritat. Ja al recinte central, després de la font d'ablucions Mizuya, es creuen les portes Yōmeimon i Karamon (aquesta última no es pot travessar) fins al saló de plegàries (Haiden) i el saló principal (Honden).","address":"2301 Sannai, Nikko, Tochigi 321-1431","hours":"8:00-17:00 (abril-octubre); 8:00-16:00 (novembre-març)","duration":"1,5-2,5 hores","notes":"Calculeu més temps del que sembla: hi ha tallats i detalls a cada pam, i és fàcil passar-s'hi una bona estona fent fotos. Entrada combinada disponible amb el Museu Tōshōgū.","apple":"https://maps.apple.com/?q=Toshogu+Shrine+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Toshogu+Shrine+Nikko","wiki":"https://en.wikipedia.org/wiki/T%C5%8Dsh%C5%8D-g%C5%AB"},{"id":"nemuri-neko","group":"toshogu","order":2,"name":"Mausoleu de Ieyasu i el gat adormit (Nemuri-neko)","cat":"monument","priority":"mitjana","tags":["talla del gat adormit","camí boscós fins al mausoleu"],"desc":"Just a la dreta del saló principal, la porta Sakashitamon té sobre seu una petita i famosa talla del «gat adormit» (Nemuri-neko), fàcil de passar per alt enmig de tants detalls. Aquesta porta dona accés a un camí boscós, curt però bonic, que puja fins al mausoleu pròpiament dit de Tokugawa Ieyasu: una zona molt més austera i sòbria que la resta del santuari, amb els blasons familiars (kamon) Tokugawa per tot arreu però pràcticament sense colors ni talles.","address":"2301 Sannai, Nikko, Tochigi 321-1431 (dins el recinte de Tōshōgū)","hours":"Mateix horari que Tōshōgū","duration":"20-30 min","notes":"Molta gent només visita el saló principal i el Honjidō i es perd aquest mausoleu: no us el salteu, val molt la pena pel contrast amb la resta del santuari.","apple":"https://maps.apple.com/?q=Nikko+Toshogu+Nemuri+Neko","google":"https://www.google.com/maps/search/?api=1&query=Nikko+Toshogu+Nemuri+Neko","wiki":null},{"id":"honjido","group":"toshogu","order":3,"name":"Honjidō — el drac plorós","cat":"altres","priority":"mitjana","tags":["acústica sorprenent","dragon ronin"],"desc":"Saló a l'esquerra de la porta Yōmeimon on, al sostre, hi ha una pintura d'un drac. No s'hi poden fer fotos, però l'atracció real és l'acústica: quan un monjo fa xocar dues petites peces de fusta just a sota de la pintura, el so ressona d'una manera que recorda el bram o el plor d'un drac.","address":"2301 Sannai, Nikko, Tochigi 321-1431 (dins el recinte de Tōshōgū)","hours":"Mateix horari que Tōshōgū","duration":"15-20 min","notes":"És una petita demostració guiada, no una visita lliure: cal esperar el torn per entrar-hi amb un grup petit.","apple":"https://maps.apple.com/?q=Nikko+Toshogu+Honjido","google":"https://www.google.com/maps/search/?api=1&query=Nikko+Toshogu+Honjido","wiki":null},{"id":"shinkyo","group":"futarasan","order":1,"name":"Pont Shinkyō","cat":"monument","priority":"alta","tags":["un dels tres ponts més bells del japó","imatge icònica de nikko"],"desc":"El pont vermell més fotografiat de Nikko, considerat un dels tres ponts més bells del Japó (junt amb el Kintai-kyō d'Iwakuni i el de Saruhashi, a Yamanashi). Forma part, de fet, del complex del santuari Futarasan, tot i quedar-ne una mica allunyat. El pont actual data de 1636, tot i que ja hi havia un pont anterior en aquest mateix lloc. És curiós que, per travessar-lo, cal pagar entrada, però l'altre extrem no porta enlloc (l'accés estava tancat fins al 1973): la gent i els cotxes normalment creuen el riu per un altre pont modern, uns metres al costat, que sí que té sortida.","address":"8-27 Kamihatsuishimachi, Nikko, Tochigi 321-1401","hours":"No indicat als arxius","duration":"15-20 min","notes":"Si el que voleu és la foto icònica amb el pont sencer, és millor no travessar-lo (ja que llavors el pont no surt a la foto) i fer-la des de fora, des del pont modern del costat.","apple":"https://maps.apple.com/?q=Shinkyo+Bridge+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Shinkyo+Bridge+Nikko","wiki":"https://en.wikipedia.org/wiki/Shinky%C5%8D"},{"id":"futarasan","group":"futarasan","order":2,"name":"Santuari Futarasan","cat":"santuari","priority":"alta","tags":["santuari més antic de la zona","3400 hectàrees de natura sagrada"],"desc":"Santuari molt antic, fundat l'any 782, molt més sobri i petit en edificis que el Tōshōgū, però amb un complex que en realitat és enorme: ocupa 3.400 hectàrees, ja que està dedicat als tres pics sagrats de Nikko (el mont Nantai, el mont Nyohō i el mont Tarō), i tota la natura del voltant es considera sagrada. Pel camí d'accés als salons de plegàries i principal es veuen arbres envoltats de cordes shimenawa amb tires de paper (shide), que marquen els llocs considerats kami. També hi ha una zona amb estàtues de gossos-lleons komainu i omikuji (paperets de la fortuna) especialment colorits, i una estàtua daurada de Daikokuten, un dels set déus de la bona fortuna —una influència budista que es va eliminar d'aquí durant la Restauració Meiji, quan es va voler fer del sintoisme la religió d'estat.","address":"2307 Sannai, Nikko, Tochigi 321-1431","hours":"8:00-17:00 (abril-octubre); 8:00-16:00 (novembre-març); accés al recinte gratuït","duration":"45 min - 1 hora","notes":"L'accés general al complex és gratuït; només cal pagar per entrar a certes zones concretes.","apple":"https://maps.apple.com/?q=Futarasan+Shrine+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Futarasan+Shrine+Nikko","wiki":"https://en.wikipedia.org/wiki/Futarasan_jinja"},{"id":"taiyuinbyo","group":"futarasan","order":3,"name":"Taiyūin-byō (mausoleu de Tokugawa Iemitsu)","cat":"monument","priority":"alta","tags":["net de ieyasu","tan recarregat com el toshogu"],"desc":"Mausoleu del net de Ieyasu, Tokugawa Iemitsu (nom pòstum Taiyūin), just al costat de Futarasan. Encara que en teoria es va concebre com un gest més modest en senyal de respecte cap al seu avi —tots els elements del mausoleu miren cap al Tōshōgū—, a la pràctica és igual de recarregat i espectacular, amb les mateixes tècniques de tallat, color i daurat. S'hi accedeix travessant diverses portes successives (Niōmon amb els guardians niō, un petit mirador que simbolitza la vista des del món celestial, les torres de la campana i el tambor, la porta Yashamon amb quatre divinitats budistes més, i finalment la Karamon) fins al saló de plegàries, amb sostres i pilars lacats en or espectaculars.","address":"2300-1 Sannai, Nikko, Tochigi 321-1431","hours":"8:00-17:00 (abril-octubre); 8:00-16:00 (novembre-març)","duration":"1-1,5 hores","notes":"Molta gent visita només Tōshōgū i Futarasan i torna pel mateix camí, saltant-se el Taiyūin-byō: és un error, val molt la pena pujar-hi.","apple":"https://maps.apple.com/?q=Taiyuinbyo+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Taiyuinbyo+Nikko","wiki":null},{"id":"rinnoji","group":"futarasan","order":4,"name":"Temple Rinnō-ji","cat":"temple","priority":"alta","tags":["sanbutsudo","15 subtemples","estàtues de fusta lacada en or"],"desc":"Gran temple budista format per 15 subtemples, diversos salons i pagodes; el Taiyūin-byō en forma part. El seu saló principal, el Sanbutsudō, és gegantí i alberga tres estàtues de fusta lacada en or espectaculars.","address":"2300 Sannai, Nikko, Tochigi 321-1431","hours":"8:00-17:00 (abril-octubre); 8:00-16:00 (novembre-març)","duration":"45 min - 1 hora","notes":"El Sanbutsudō va estar anys tapat per obres de restauració; comproveu que ja estigui totalment visible abans d'anar-hi.","apple":"https://maps.apple.com/?q=Rinnoji+Temple+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Rinnoji+Temple+Nikko","wiki":"https://en.wikipedia.org/wiki/Rinn%C5%8D-ji"},{"id":"kanmangafuchi","group":"mes-nikko","order":1,"name":"Abisme de Kanmangafuchi","cat":"mirador","priority":"mitjana","tags":["fila de jizo","natura espectacular"],"desc":"Petit congost natural al llarg del riu Daiya, amb una filera d'estàtues de pedra Jizō (els Narabi Jizō, unes 74) al llarg del camí. Zona de gran bellesa natural i molt més tranquil·la que els grans santuaris.","address":"Kurokamicho, Nikko, Tochigi 321-1435","hours":"Accés lliure, obert tot el dia","duration":"45 min - 1 hora","notes":"Es diu que si compteu les estàtues Jizō d'anada i de tornada, mai us surt el mateix nombre.","apple":"https://maps.apple.com/?q=Kanmangafuchi+Abyss+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Kanmangafuchi+Abyss+Nikko","wiki":null},{"id":"botanical-garden","group":"mes-nikko","order":2,"name":"Jardí Botànic de Nikko","cat":"parc","priority":"baixa","tags":["milers de varietats de plantes"],"desc":"Jardí botànic amb milers de varietats de plantes i flors pròpies de la zona muntanyosa de Nikko, una bona manera de conèixer la flora local.","address":"1842 Hanaishimachi, Nikko, Tochigi 321-1435","hours":"No indicat als arxius","duration":"45 min - 1 hora","notes":"Opció més interessant en primavera i estiu, quan hi ha més varietats en flor.","apple":"https://maps.apple.com/?q=Nikko+Botanical+Garden","google":"https://www.google.com/maps/search/?api=1&query=Nikko+Botanical+Garden","wiki":null},{"id":"tamozawa","group":"mes-nikko","order":3,"name":"Vil·la Imperial Tamozawa","cat":"monument","priority":"baixa","tags":["residència de la família imperial","arquitectura de finals del període edo i meiji"],"desc":"Construïda el 1899, va servir com a residència de la gent benestant i, especialment, de la família imperial. És un exemple fantàstic de l'arquitectura de finals del període Edo i principis del període Meiji.","address":"8-27 Honcho, Nikko, Tochigi 321-1434","hours":"9:00-17:00 (abril-octubre); 9:00-16:30 (novembre-març); tancat dimarts i del 29 de desembre a l'1 de gener","duration":"1,5-2 hores","notes":"Entrada: 600 ¥ adults, 300 ¥ nens. A uns 30 min a peu (o 10 min en autobús, parada Tamozawa) des de les estacions de Nikko.","apple":"https://maps.apple.com/?q=Tamozawa+Imperial+Villa","google":"https://www.google.com/maps/search/?api=1&query=Tamozawa+Imperial+Villa","wiki":"https://en.wikipedia.org/wiki/Tamozawa_Imperial_Villa"},{"id":"chuzenji","group":"parc-nacional","order":1,"name":"Llac Chūzenji","cat":"mirador","priority":"mitjana","tags":["espectacular a la tardor","muntanya"],"desc":"Llac de muntanya espectacular, especialment recomanable a la tardor pels colors dels arbres al voltant. Requereix quedar-se a dormir a Nikko o dedicar-hi un dia sencer a banda de la visita al nucli de temples i santuaris.","address":"Chugushi, Nikko, Tochigi 321-1661","hours":"No indicat als arxius","duration":"Mig dia o més","notes":"Al voltant hi ha també pistes d'esquí i el llac Yuno, amb rutes de senderisme.","apple":"https://maps.apple.com/?q=Lake+Chuzenji+Nikko","google":"https://www.google.com/maps/search/?api=1&query=Lake+Chuzenji+Nikko","wiki":"https://en.wikipedia.org/wiki/Lake_Chuzenji"},{"id":"yumoto-onsen","group":"parc-nacional","order":2,"name":"Nikko Yumoto Onsen","cat":"barri","priority":"baixa","tags":["banys termals","pistes d'esquí properes"],"desc":"Poble d'onsen dins el Parc Nacional de Nikko, amb pistes d'esquí no gaire lluny de Tòquio per als qui hi vulguin combinar l'hivern amb els banys termals.","address":"Yumoto, Nikko, Tochigi 321-1662","hours":"No indicat als arxius","duration":"Una nit (bon lloc per pernoctar)","notes":"Es pot combinar amb rutes de senderisme pels voltants del llac Yuno.","apple":"https://maps.apple.com/?q=Nikko+Yumoto+Onsen","google":"https://www.google.com/maps/search/?api=1&query=Nikko+Yumoto+Onsen","wiki":null},{"id":"kinugawa-onsen","group":"parc-nacional","order":3,"name":"Kinugawa Onsen / Kawamata Onsen","cat":"barri","priority":"baixa","tags":["onsen més desenvolupat vs. onsen més natural"],"desc":"Dues zones d'onsen properes entre si: Kinugawa Onsen, més desenvolupada turísticament, i Kawamata Onsen, una mica més envoltada de natura i amb menys infraestructura turística.","address":"Kinugawaonsen, Nikko, Tochigi 321-2523","hours":"No indicat als arxius","duration":"Una nit (bon lloc per pernoctar)","notes":"Bona opció si voleu allargar l'estada a la zona de Nikko més enllà d'una excursió de dia.","apple":"https://maps.apple.com/?q=Kinugawa+Onsen","google":"https://www.google.com/maps/search/?api=1&query=Kinugawa+Onsen","wiki":null},{"id":"utsunomiya-gyoza","group":"tornada","order":1,"name":"Utsunomiya — gyoza de tornada cap a Tòquio","cat":"restaurant","priority":"mitjana","tags":["capital japonesa de les gyoza","parada tècnica de tren"],"desc":"Utsunomiya és considerada una de les capitals japoneses de les gyoza, i queda de camí de tornada des de Nikko cap a Tòquio si es va amb JR: cal fer transbordament (nori-kae) del Shinkansen a la línia local JR Nikko a Utsunomiya, així que és perfecte aprofitar per baixar-hi, sopar unes quantes gyoza de sabors diferents a la plaça al voltant de l'estació, i continuar després cap a Tòquio.","address":"Utsunomiya, Tochigi 320-0801","hours":"Restaurants oberts normalment fins tard al vespre","duration":"45 min - 1 hora","notes":"Si aneu amb la companyia privada Tobu (des d'Asakusa) no cal fer aquest transbordament, així que la parada a Utsunomiya requereix una mica més de planificació o bé fer-la a l'anada.","apple":"https://maps.apple.com/?q=Utsunomiya+Station+Gyoza","google":"https://www.google.com/maps/search/?api=1&query=Utsunomiya+Station+Gyoza","wiki":null}],"obs":["Els llocs d'aquest itinerari s'han extret de la transcripció del podcast de japonismo sobre Nikko, ampliats amb dades pràctiques (adreces, horaris, preus) de fonts com kanpai-japan.com, japan-guide.com i les webs oficials de turisme de Nikko (visitnikko.jp, nikko-kankou.org).","El nucli de temples i santuaris de Nikko (Tōshōgū, Futarasan, Taiyūin-byō, Rinnō-ji) és Patrimoni de la Humanitat per la Unesco i es pot visitar sencer a peu en una excursió de dia des de Tòquio; per això té una única ruta combinada.","El Parc Nacional de Nikko (llac Chūzenji, Nikko Yumoto Onsen, Kinugawa/Kawamata Onsen) requereix quedar-s'hi a dormir per gaudir-ne bé, tal com recomana el mateix podcast: per això té una ruta separada, pensada per a una segona jornada.","Utsunomiya no forma part de Nikko pròpiament dita: és una parada de tren de tornada cap a Tòquio, recomanada pel podcast per tastar les seves famoses gyoza; per això no té botó de ruta combinada amb la resta.","Quan no s'ha trobat una dada concreta a la transcripció ni a les fonts consultades, s'ha marcat com «No indicat als arxius»; reviseu sempre horaris i preus actualitzats abans del viatge."]}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'nikko_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' — ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const routeButtons = (DATA.routes||[]).map(r=>{
+    const groupIds = r.groups || (r.group ? [r.group] : []);
+    const count = DATA.places.filter(p=>groupIds.includes(p.group)).length;
+    return `<a class="routebtn" href="${r.url}" target="_blank" rel="noopener">${r.label} (${count} parades)</a>`;
+  }).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      ${routeButtons}
+      <span class="routenote">El nucli de Nikko (Tōshōgū, Futarasan, Taiyūin-byō i Rinnō-ji) és Patrimoni Mundial de la UNESCO i es visita a peu en una ruta combinada. El Parc Nacional (llac Chūzenji i les onsen de muntanya) és una extensió a part que requereix més temps i, sovint, pernoctar; Utsunomiya és només una parada del tren de tornada i no té botó de ruta propi.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>

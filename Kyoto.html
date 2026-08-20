@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Kyoto</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#b3452e; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+/* city accent colours, applied via [data-city] on panel */
+[data-city="tokyo"]{--accent:#b3452e}
+[data-city="kyoto"]{--accent:#8c332b}
+[data-city="osaka"]{--accent:#c2410c}
+
+.tabs{display:flex;gap:6px;margin:14px 0 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);z-index:30;padding-top:4px}
+.tabbtn{font:inherit;font-weight:750;border:none;background:transparent;color:var(--muted);padding:10px 14px;border-radius:10px 10px 0 0;cursor:pointer;border-bottom:3px solid transparent}
+.tabbtn:hover{color:var(--text)}
+.tabbtn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.panel-body{display:none}
+.panel-body.active{display:block}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:2px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem}
+
+.toolbar{position:sticky;top:48px;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Japó 2026 · guia interactiva autosuficient</div>
+<h1>⛩️ Itinerari Kyoto</h1>
+<p class="subtitle">Itinerari interactiu autosuficient de Kyoto, extret del document conjunt de Tòquio · Kyoto · Osaka (mateix format i funcionalitats: cerca, filtres, ruta completa a Google Maps i seguiment de llocs visitats).</p>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tabbtn active" data-city="kyoto">⛩️ Kyoto</button>
+</nav>
+
+<div id="panels"></div>
+
+<footer>Generat combinant els tres itineraris originals de Tòquio, Kyoto i Osaka en un sol document autosuficient (sense connexió a internet necessària per consultar-lo). Verifiqueu horaris i reserves abans del viatge.</footer>
+</div>
+
+<script id="app-data" type="application/json">{"kyoto":{"groups":[{"id":"dia1","label":"Dia 1 · Fushimi i Higashiyama"},{"id":"dia2","label":"Dia 2 · Kinkaku-ji i Arashiyama"},{"id":"dia3","label":"Dia 3 · Ginkaku-ji, Filòsof i Nishiki"},{"id":"senderisme","label":"Senderisme · Sendero Circular de Kyoto"},{"id":"excursions","label":"Altres llocs destacats de Kyoto (Daigo-ji, Kurama, Kifune, Kitano Tenmangu)"}],"places":[{"id":"fushimi-inari","group":"dia1","order":1,"name":"Fushimi Inari Taisha","cat":"Santuari","tags":["Santuari"],"desc":"El gran santuari dedicat al kami Inari, famós pels seus quilòmetres de toris vermells (Senbon Torii) que pugen pel mont Inari. És alhora el punt de partida oficial (marcador F1) de la ruta de senderisme circular «Fushimi-Fukakusa».","address":"68 Fukakusa Yabunouchicho, Fushimi-ku, Kyoto","hours":"Recinte exterior obert 24h; saló principal i botigues d'amulets aprox. 9:00–16:00","duration":"1,5–3 h (més si puges fins al cim del mont Inari)","notes":"Els amfitrions no recomanen anar-hi de matinada (4-5h) com suggereixen alguns vídeos virals: n'hi ha prou d'arribar cap a les 9:00 per trobar-lo relativament tranquil abans que arribin els grups (a partir de les 10:00). La majoria de turistes només arriba als dos primers trams de toris junts a l'entrada; en pujar una mica la gent es dispersa molt. Es pot combinar amb la pujada al mont Otowa i baixar cap al districte del saké de Fushimi.","apple":"https://maps.apple.com/?ll=34.9671,135.7727&q=Fushimi%20Inari%20Taisha","google":"https://www.google.com/maps/search/?api=1&query=34.9671,135.7727","wiki":null},{"id":"fushimi-castell","group":"dia1","order":2,"name":"Castell de Fushimi Momoyama (exterior)","cat":"Castell","tags":["Castell"],"desc":"Reconstrucció de 1964 del castell que va fer construir Toyotomi Hideyoshi per retirar-s'hi; un terratrèmol el va destruir només dos anys després d'aixecar-se. Té un paper important en la història dels grans unificadors del Japó.","address":"32 Fushimijonai-cho, Fushimi-ku, Kyoto","hours":"Parc exterior obert; edifici tancat al públic (antic museu, tancat des de 2003)","duration":"20–30 min (només exterior)","notes":"Actualment no es pot visitar per dins. És a prop del districte del saké de Fushimi. Alternativa d'inici de la ruta de senderisme Fushimi-Fukakusa des de l'estació Fushimi-Momoyama (línia Keihan) o Momoyama (JR).","apple":"https://maps.apple.com/?ll=34.9394,135.7708&q=Castell%20de%20Fushimi%20Momoyama%20(exterior)","google":"https://www.google.com/maps/search/?api=1&query=34.9394,135.7708","wiki":null},{"id":"tofukuji","group":"dia1","order":3,"name":"Tofuku-ji","cat":"Temple","tags":["Temple"],"desc":"Gran complex de temples zen, espectacular a la tardor amb un «mar» d'arces (momiji). La zona al seu voltant és molt popular entre kiotencs però encara poc coneguda pel turisme internacional, tot i ser molt propera a l'estació de Kyoto.","address":"15-778 Honmachi, Higashiyama-ku, Kyoto","hours":"Aprox. 9:00–16:00 (varia segons temporada)","duration":"1–1,5 h","notes":"A prop hi ha també el temple Sennyu-ji i el Imakumano Kannon (un dels 33 temples de la peregrinació Saigoku Kannon). Es troba al llarg de la ruta de senderisme «Fushimi-Fukakusa → Higashiyama», entre Fushimi Inari i la zona de Kiyomizu.","apple":"https://maps.apple.com/?ll=34.9767,135.7737&q=Tofuku-ji","google":"https://www.google.com/maps/search/?api=1&query=34.9767,135.7737","wiki":null},{"id":"kiyomizudera","group":"dia1","order":4,"name":"Kiyomizu-dera","cat":"Temple","tags":["Temple"],"desc":"Probablement el temple budista més visitat de Kyoto, famós pel seu gran balcó de fusta sostingut sense claus i per la cascada Otowa, d'on cauen tres raigs d'aigua (cadascun amb una propietat diferent: longevitat, èxit en l'amor o els estudis).","address":"1-294 Kiyomizu, Higashiyama-ku, Kyoto","hours":"6:00–18:00 aprox. (obertures nocturnes especials en temporades de sakura i momiji)","duration":"1,5–2 h","notes":"Els amfitrions recomanen beure d'un sol raig (beure dels tres es considera «voler-ho tot» i porta mala sort). Dins el recinte hi ha el santuari sintoista Jishu (vegeu fitxa pròpia). En sortir, la cuesta de Kiyomizu porta de manera natural cap a Sannenzaka/Ninenzaka.","apple":"https://maps.apple.com/?ll=34.9949,135.785&q=Kiyomizu-dera","google":"https://www.google.com/maps/search/?api=1&query=34.9949,135.785","wiki":null},{"id":"jishu","group":"dia1","order":5,"name":"Santuari Jishu","cat":"Santuari","tags":["Santuari"],"desc":"Petit santuari sintoista dedicat a l'amor, situat just al costat del famós balcó de Kiyomizu-dera: un exemple clàssic del sincretisme religiós japonès (temple budista + santuari sintoista al mateix recinte).","address":"Dins el recinte de Kiyomizu-dera, Higashiyama-ku, Kyoto","hours":"Mateix horari que Kiyomizu-dera","duration":"10–15 min","notes":"Observació: en el moment dels episodis del podcast part del santuari estava en obres de restauració; comproveu l'estat abans d'anar-hi.","apple":"https://maps.apple.com/?ll=34.9948,135.7853&q=Santuari%20Jishu","google":"https://www.google.com/maps/search/?api=1&query=34.9948,135.7853","wiki":null},{"id":"sannenzaka","group":"dia1","order":6,"name":"Sannenzaka i Ninenzaka","cat":"Barri històric","tags":["Barri històric"],"desc":"Precioses costes empedrades flanquejades per cases tradicionals del període Edo, plenes de botigues d'artesania, souvenirs i petits restaurants. Des d'aquí es veu la pagoda Yasaka, una de les imatges més icòniques de Kyoto.","address":"Higashiyama-ku, Kyoto (entre Kiyomizu-dera i el santuari Yasaka)","hours":"Carrers oberts 24h; botigues aprox. 10:00–18:00","duration":"45–60 min de passeig","notes":"A Ninenzaka hi ha un Starbucks instal·lat dins un antic edifici Edo restaurat (exterior i interior originals), molt fotografiat; sol tenir cua. Zona ideal per passejar sense pressa camí de Gion.","apple":"https://maps.apple.com/?ll=34.9975,135.7807&q=Sannenzaka%20i%20Ninenzaka","google":"https://www.google.com/maps/search/?api=1&query=34.9975,135.7807","wiki":null},{"id":"yasaka-pagoda","group":"dia1","order":7,"name":"Pagoda Yasaka (Hokan-ji)","cat":"Temple","tags":["Temple"],"desc":"Pagoda de cinc pisos que és una de les imatges més icòniques del barri de Higashiyama, visible des de diversos carrerons de Sannenzaka i Ninenzaka.","address":"388 Kiyoicho, Higashiyama-ku, Kyoto","hours":"Aprox. 10:00–15:00 (interior); exterior visible sempre","duration":"10–20 min","notes":"Normalment n'hi ha prou de fotografiar-la des del carrer; es pot pujar per dins amb entrada a part si voleu vistes.","apple":"https://maps.apple.com/?ll=34.9986,135.7795&q=Pagoda%20Yasaka%20(Hokan-ji)","google":"https://www.google.com/maps/search/?api=1&query=34.9986,135.7795","wiki":null},{"id":"kodaiji","group":"dia1","order":8,"name":"Kodai-ji","cat":"Temple","tags":["Temple"],"desc":"Temple fundat en memòria de Toyotomi Hideyoshi, amb jardins dissenyats pel mestre paisatgista Kobori Enshu; té també il·luminacions nocturnes en temporada de momiji.","address":"526 Shimokawaracho, Higashiyama-ku, Kyoto","hours":"9:00–17:30 aprox. (última entrada 17:00)","duration":"45–60 min","notes":"Es troba de camí entre Ninenzaka i el santuari Yasaka; encaixa bé com a parada curta abans d'arribar a Gion.","apple":"https://maps.apple.com/?ll=35.0016,135.7807&q=Kodai-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0016,135.7807","wiki":null},{"id":"yasaka-shrine","group":"dia1","order":9,"name":"Santuari Yasaka","cat":"Santuari","tags":["Santuari"],"desc":"El gran santuari del barri de Gion, on les maiko i geishes van a resar per tenir sort als negocis. Té diversos sub-santuaris interiors (fàcils de passar per alt sense context) i una font d'«aigua de la bellesa».","address":"625 Gionmachi Kitagawa, Higashiyama-ku, Kyoto","hours":"Recinte obert 24h","duration":"30–45 min","notes":"S'hi accedeix de manera natural baixant per Sannenzaka/Ninenzaka (per una porta lateral) o per la porta principal des de Shijo-dori. Connecta directament amb el Parc Maruyama.","apple":"https://maps.apple.com/?ll=35.0037,135.7788&q=Santuari%20Yasaka","google":"https://www.google.com/maps/search/?api=1&query=35.0037,135.7788","wiki":null},{"id":"maruyama-park","group":"dia1","order":10,"name":"Parc Maruyama","cat":"Natura","tags":["Natura"],"desc":"Petit oasi verd enganxat al santuari Yasaka, molt popular per fer pícnics, amb un cirerer plorós emblemàtic i bonic tant a la primavera (sakura) com a la tardor (momiji).","address":"Enveltat pel santuari Yasaka, Higashiyama-ku, Kyoto","hours":"Obert 24h","duration":"20–30 min de passeig","notes":"Punt de connexió natural cap al temple Chion-in.","apple":"https://maps.apple.com/?ll=35.0044,135.7809&q=Parc%20Maruyama","google":"https://www.google.com/maps/search/?api=1&query=35.0044,135.7809","wiki":null},{"id":"chionin","group":"dia1","order":11,"name":"Chion-in","cat":"Temple","tags":["Temple"],"desc":"Un dels temples budistes més importants de Kyoto, amb una de les tres grans portes budistes (Sanmon) de fusta de la ciutat. Les seves escales van sortir a la pel·lícula «El último samurái» fent de palau imperial.","address":"400 Rinkacho, Higashiyama-ku, Kyoto","hours":"9:00–16:30 aprox. (última entrada 16:00)","duration":"45–60 min","notes":"Comproveu l'estat de les obres de restauració del saló principal abans d'anar-hi (en el moment dels episodis del podcast estava parcialment cobert per bastides).","apple":"https://maps.apple.com/?ll=35.0053,135.7822&q=Chion-in","google":"https://www.google.com/maps/search/?api=1&query=35.0053,135.7822","wiki":null},{"id":"canal-okazaki","group":"dia1","order":12,"name":"Canal Okazaki","cat":"Natura","tags":["Natura"],"desc":"Canal vorejat de cirerers, especialment recomanable a la primavera; a la primavera hi ha barquetes turístiques que en recorren el tram principal.","address":"Okazaki, Sakyo-ku, Kyoto","hours":"Obert 24h; passejos amb barca només en temporada de sakura","duration":"20–30 min de passeig","notes":"Connecta de manera natural el temple Chion-in amb el santuari Heian, i també amb el cami de la Cuesta Keague (vegeu bloc de senderisme).","apple":"https://maps.apple.com/?ll=35.01,135.783&q=Canal%20Okazaki","google":"https://www.google.com/maps/search/?api=1&query=35.01,135.783","wiki":null},{"id":"heian-jingu","group":"dia1","order":13,"name":"Santuari Heian (Heian Jingu)","cat":"Santuari","tags":["Santuari"],"desc":"Santuari construït el 1895 per commemorar l'aniversari de la fundació de Kyoto, amb un dels toris més grans de la ciutat, de color vermell-taronja intens.","address":"97 Nishitenno-cho, Okazaki, Sakyo-ku, Kyoto","hours":"6:00–18:00 aprox. (recinte); jardins 8:30–17:00 (amb pagament)","duration":"30 min (recinte) + 45 min (jardins, opcional)","notes":"El pas per sota del tori i la plaça principal són d'accés lliure; els jardins del darrere requereixen entrada. Punt final habitual del primer dia d'itinerari.","apple":"https://maps.apple.com/?ll=35.0161,135.7822&q=Santuari%20Heian%20(Heian%20Jingu)","google":"https://www.google.com/maps/search/?api=1&query=35.0161,135.7822","wiki":null},{"id":"kinkakuji","group":"dia2","order":14,"name":"Kinkaku-ji (Pavelló Daurat)","cat":"Temple","tags":["Temple"],"desc":"El famós «temple d'or», una de les imatges més icòniques de Kyoto, reflectit a l'estany del jardí. Bonic en qualsevol època de l'any.","address":"1 Kinkakujicho, Kita-ku, Kyoto","hours":"9:00–17:00","duration":"45–60 min","notes":"Recomanació dels amfitrions: arribar-hi a les 9:00, quan obre, per trobar-lo amb molta menys gent (a partir de les 10:00-12:00 s'omple molt). És l'inici del sender «Kinukake no Michi» que enllaça Kinkaku-ji, Ryoan-ji i Ninna-ji.","apple":"https://maps.apple.com/?ll=35.0394,135.7292&q=Kinkaku-ji%20(Pavell%C3%B3%20Daurat)","google":"https://www.google.com/maps/search/?api=1&query=35.0394,135.7292","wiki":null},{"id":"ryoanji","group":"dia2","order":15,"name":"Ryoan-ji","cat":"Temple","tags":["Temple"],"desc":"Casa el jardí zen de pedres i grava rastellada més famós del Japó. A fora del jardí sec hi ha un estany amb un restaurant vegetarià/vegà molt recomanable.","address":"13 Ryoanji Goryonoshitacho, Ukyo-ku, Kyoto","hours":"8:00–17:00 (hivern 8:30–16:30)","duration":"45 min","notes":"A 15-20 min a peu de Kinkaku-ji seguint el mateix carrer. Els amfitrions recomanen llegir una mica sobre el jardí abans (o durant) la visita per apreciar-lo més enllà del primer cop d'ull.","apple":"https://maps.apple.com/?ll=35.0345,135.7183&q=Ryoan-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0345,135.7183","wiki":null},{"id":"ninnaji","group":"dia2","order":16,"name":"Ninna-ji","cat":"Temple","tags":["Temple"],"desc":"El menys conegut pels turistes internacionals dels tres temples del sender Kinukake no Michi, amb una pagoda de cinc pisos de fusta fosca i una gran zona de cirerers (Omuro-zakura) i pruners.","address":"33 Omuro Ouchi, Ukyo-ku, Kyoto","hours":"9:00–17:00 (hivern fins 16:30)","duration":"45–60 min","notes":"L'entrada principal té sales amb pagament; s'hi pot accedir també per una entrada lateral d'accés lliure. Imprescindible a la primavera si hi ha floració de cirerers.","apple":"https://maps.apple.com/?ll=35.0318,135.7139&q=Ninna-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0318,135.7139","wiki":null},{"id":"randen-arashiyama","group":"dia2","order":17,"name":"Tramvia Randen i estació d'Arashiyama (Bosc de Kimonos)","cat":"Barri històric","tags":["Barri històric"],"desc":"L'únic tramvia que queda a Kyoto (línia Randen), amb vagons d'estil retro. L'estació d'Arashiyama té el «Kimono Forest», pilars il·luminats decorats amb teles de kimono, cafeteries i bancs de descans.","address":"Estació Randen Arashiyama, Ukyo-ku, Kyoto","hours":"Tramvia en servei aprox. 6:00–23:00","duration":"15–20 min a l'estació","notes":"Des de Ninna-ji, camineu uns 500 m fins a l'estació de tramvia i preneu-lo fins a Arashiyama; és un trajecte curt però ja forma part de l'experiència.","apple":"https://maps.apple.com/?ll=35.0156,135.6773&q=Tramvia%20Randen%20i%20estaci%C3%B3%20d'Arashiyama%20(Bosc%20de%20Kimonos)","google":"https://www.google.com/maps/search/?api=1&query=35.0156,135.6773","wiki":null},{"id":"bosc-bambu","group":"dia2","order":18,"name":"Bosc de bambú d'Arashiyama","cat":"Natura","tags":["Natura"],"desc":"El passeig de bambú més famós de Kyoto (encara que no és l'únic: n'hi ha un altre de més petit al camí de baixada del santuari Gokonomiya, a Fushimi). És un carreró bastant estret i curt.","address":"Sagaogurayama Tabuchiyamacho, Ukyo-ku, Kyoto","hours":"Obert 24h","duration":"15–20 min","notes":"Sol estar molt concorregut de gent; els amfitrions aconsellen no obsessionar-se amb la foto perfecta i simplement gaudir de l'ambient.","apple":"https://maps.apple.com/?ll=35.0169,135.6717&q=Bosc%20de%20bamb%C3%BA%20d'Arashiyama","google":"https://www.google.com/maps/search/?api=1&query=35.0169,135.6717","wiki":null},{"id":"tenryuji","group":"dia2","order":19,"name":"Tenryu-ji","cat":"Temple","tags":["Temple"],"desc":"Temple zen Patrimoni de la Humanitat, amb un dels jardins paisatgístics més bonics de Kyoto, dissenyat per integrar-se amb el paisatge del mont del darrere.","address":"68 Susukinobabacho, Saga Tenryuji, Ukyo-ku, Kyoto","hours":"8:30–17:00 (varia lleugerament amb l'estació)","duration":"45–60 min","notes":"Els amfitrions recomanen arribar-hi el més aviat possible (9:00, quan obre) per veure'l amb poca gent, ja que la zona central d'Arashiyama s'omple molt a partir de mig matí.","apple":"https://maps.apple.com/?ll=35.0159,135.6741&q=Tenryu-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0159,135.6741","wiki":null},{"id":"togetsukyo","group":"dia2","order":20,"name":"Pont Togetsukyo","cat":"Mirador","tags":["Mirador"],"desc":"Pont icònic sobre el riu Katsura, amb vistes a les muntanyes d'Arashiyama; imatge clàssica de postals de Kyoto en qualsevol estació.","address":"Saga Nakanoshimacho, Ukyo-ku, Kyoto","hours":"Obert 24h","duration":"10–15 min","notes":"Prop de l'estació del tren romàntic Sagano (que no circula a l'hivern, després de la temporada de momiji).","apple":"https://maps.apple.com/?ll=35.0111,135.6778&q=Pont%20Togetsukyo","google":"https://www.google.com/maps/search/?api=1&query=35.0111,135.6778","wiki":null},{"id":"iwatayama","group":"dia2","order":21,"name":"Parc dels micos Iwatayama","cat":"Natura","tags":["Natura"],"desc":"Petita muntanya amb macacos japonesos en llibertat i vistes panoràmiques de Kyoto des del cim.","address":"8 Genrokuzancho, Arashiyama, Nishikyo-ku, Kyoto","hours":"9:00–16:00 aprox.","duration":"1–1,5 h (pujada inclosa)","notes":"Requereix una pujada a peu de 20-30 minuts; no apareix com a parada obligatòria als itineraris del podcast però es va esmentar de passada com a opció dins d'Arashiyama.","apple":"https://maps.apple.com/?ll=35.0092,135.6775&q=Parc%20dels%20micos%20Iwatayama","google":"https://www.google.com/maps/search/?api=1&query=35.0092,135.6775","wiki":null},{"id":"sagatorimoto","group":"dia2","order":22,"name":"Districte de Sagano-Torimoto","cat":"Barri històric","tags":["Barri històric"],"desc":"Districte de conservació històrica al nord de la zona central d'Arashiyama, amb cases tradicionals, molta menys gent i un ambient molt més tranquil.","address":"Sagatorimoto, Ukyo-ku, Kyoto","hours":"Carrer obert 24h","duration":"30–40 min de passeig","notes":"Els amfitrions el recomanen especialment per fugir de la massificació de la zona central d'Arashiyama; hi ha també un petit museu de nines relacionat amb el Gion Matsuri.","apple":"https://maps.apple.com/?ll=35.025,135.666&q=Districte%20de%20Sagano-Torimoto","google":"https://www.google.com/maps/search/?api=1&query=35.025,135.666","wiki":null},{"id":"otagi-nenbutsuji","group":"dia2","order":23,"name":"Otagi Nenbutsu-ji","cat":"Temple","tags":["Temple"],"desc":"Temple ple d'estatuetes de pedra rakan (deixebles de Buda), cadascuna amb una expressió facial diferent i esculpides per visitants al llarg de dècades.","address":"2-5 Sagatoriimoto Fukatanicho, Ukyo-ku, Kyoto","hours":"8:00–16:30 aprox.","duration":"30–40 min","notes":"Situat al capdamunt del carrer de Sagatorimoto; molt poc concorregut en comparació amb el centre d'Arashiyama.","apple":"https://maps.apple.com/?ll=35.027,135.665&q=Otagi%20Nenbutsu-ji","google":"https://www.google.com/maps/search/?api=1&query=35.027,135.665","wiki":null},{"id":"adashino-nenbutsuji","group":"dia2","order":24,"name":"Adashino Nenbutsu-ji","cat":"Temple","tags":["Temple"],"desc":"Temple conegut per les seves vuit mil estàtues de pedra (jizo/tanuki) reunides al recinte; té certa llegenda associada que expliquen a la comunitat de Discord de Japonismo.","address":"17 Adashinocho, Ukyo-ku, Kyoto","hours":"9:00–16:30 aprox.","duration":"20–30 min","notes":"Molt a prop d'Otagi Nenbutsu-ji, ideal per combinar-los en la mateixa passejada per Sagatorimoto.","apple":"https://maps.apple.com/?ll=35.0292,135.666&q=Adashino%20Nenbutsu-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0292,135.666","wiki":null},{"id":"gioji","group":"dia2","order":25,"name":"Gio-ji","cat":"Temple","tags":["Temple"],"desc":"Petit temple envoltat d'un preciós jardí de molsa dins d'un bosc de bambú, molt menys visitat que el Bosc de Bambú principal.","address":"32 Sagatoriimoto Kozakacho, Ukyo-ku, Kyoto","hours":"9:00–17:00 aprox.","duration":"20–30 min","notes":"Zona de Sagatorimoto, es pot combinar amb Otagi i Adashino Nenbutsu-ji en la mateixa ruta a peu.","apple":"https://maps.apple.com/?ll=35.0247,135.6656&q=Gio-ji","google":"https://www.google.com/maps/search/?api=1&query=35.0247,135.6656","wiki":null},{"id":"saihoji-kokedera","group":"dia2","order":26,"name":"Saiho-ji (Kokedera, «el temple del molsa»)","cat":"Temple","tags":["Temple"],"desc":"Famós pel seu jardí amb 120 espècies de molsa diferents; irònicament el molsa hi va aparèixer perquè el temple va quedar abandonat durant un temps («la vida es fa camí», bromegen els presentadors).","address":"56 Matsuo Jingatanicho, Nishikyo-ku, Kyoto","hours":"Només amb reserva prèvia, en franges horàries concretes","duration":"1,5–2 h (inclou cal·ligrafia/meditació)","notes":"⚠️ Discrepància/actualització: tradicionalment només s'hi podia reservar per correu postal amb sobre franquejat des del Japó (inviable des de l'estranger); alguns hotels ara gestionen la reserva als seus clients. Consulteu la disponibilitat actual abans de planificar-hi la visita.","apple":"https://maps.apple.com/?ll=34.9988,135.6787&q=Saiho-ji%20(Kokedera%2C%20%C2%ABel%20temple%20del%20molsa%C2%BB)","google":"https://www.google.com/maps/search/?api=1&query=34.9988,135.6787","wiki":null},{"id":"ginkakuji","group":"dia3","order":27,"name":"Ginkaku-ji (Pavelló de Plata)","cat":"Temple","tags":["Temple"],"desc":"Malgrat el nom, mai va arribar a cobrir-se de plata; té un preciós jardí sec (karesansui) a l'entrada i jardins que pugen per la muntanya amb vistes des de dalt. Els amfitrions el troben més «sossegat» que el seu germà daurat.","address":"2 Ginkakujicho, Sakyo-ku, Kyoto","hours":"8:30–17:00 (hivern 9:00–16:30)","duration":"45–60 min","notes":"És l'inici natural del Camí del Filòsof cap al sud.","apple":"https://maps.apple.com/?ll=35.027,135.7982&q=Ginkaku-ji%20(Pavell%C3%B3%20de%20Plata)","google":"https://www.google.com/maps/search/?api=1&query=35.027,135.7982","wiki":null},{"id":"cami-filosof","group":"dia3","order":28,"name":"Camí del Filòsof (Tetsugaku no Michi)","cat":"Natura","tags":["Natura"],"desc":"Passeig vora un canal, especialment bonic a la primavera (cirerers) i a l'estiu (verd intens); ple de petites cafeteries, botigues d'artesania i pintors que hi treballen a l'aire lliure.","address":"Entre Ginkaku-ji i Nanzen-ji, Sakyo-ku, Kyoto","hours":"Obert 24h","duration":"30–45 min de passeig","notes":"Molts turistes només en veuen l'extrem de Ginkaku-ji sense fixar-se en els petits temples i santuaris que hi ha al llarg del recorregut.","apple":"https://maps.apple.com/?ll=35.018,135.795&q=Cam%C3%AD%20del%20Fil%C3%B2sof%20(Tetsugaku%20no%20Michi)","google":"https://www.google.com/maps/search/?api=1&query=35.018,135.795","wiki":null},{"id":"eikando","group":"dia3","order":29,"name":"Eikan-do (Zenrin-ji)","cat":"Temple","tags":["Temple"],"desc":"Un dels llocs més populars de Kyoto per veure el momiji a la tardor (amb il·luminacions nocturnes), però espectacular en qualsevol època de l'any. Té una petita pagoda al vessant de la muntanya i un santuari en un illot enmig de l'estany.","address":"48 Eikandocho, Sakyo-ku, Kyoto","hours":"9:00–17:00 (última entrada 16:00)","duration":"45–60 min","notes":"Cal pagar entrada per accedir-hi; connecta de manera natural amb Nanzen-ji.","apple":"https://maps.apple.com/?ll=35.0159,135.7936&q=Eikan-do%20(Zenrin-ji)","google":"https://www.google.com/maps/search/?api=1&query=35.0159,135.7936","wiki":null},{"id":"nanzenji","group":"dia3","order":30,"name":"Nanzen-ji i aqüeducte de maó","cat":"Temple","tags":["Temple"],"desc":"Un altre dels grans portals budistes (Sanmon) de Kyoto, amb una explanada d'accés lliure i un curiós aqüeducte de maó de principis del període Meiji que travessa el recinte, molt fotogènic i envoltat d'arces.","address":"Nanzenji Fukuchicho, Sakyo-ku, Kyoto","hours":"8:40–17:00 (hivern fins 16:30)","duration":"45–60 min","notes":"Alguns jardins interiors requereixen entrada de pagament. Des d'aquí es pot baixar cap al Canal Okazaki (dia 1) o cap al metro de Keague per anar al centre.","apple":"https://maps.apple.com/?ll=35.0117,135.7933&q=Nanzen-ji%20i%20aq%C3%BCeducte%20de%20ma%C3%B3","google":"https://www.google.com/maps/search/?api=1&query=35.0117,135.7933","wiki":null},{"id":"mercat-nishiki","group":"dia3","order":31,"name":"Mercat de Nishiki","cat":"Gastronomia","tags":["Gastronomia"],"desc":"Conegut com «la cuina de Kyoto»: mercat cobert amb brotxetes de wagyu, cranc, encurtits típics de Kyoto, mochis amb fruita, dorayaki, croquetes i molt més, alhora que els kiotencs hi compren producte fresc.","address":"Nishikikoji-dori, Nakagyo-ku, Kyoto","hours":"Aprox. 9:00–18:00 (varia segons botiga; molts tanquen dilluns)","duration":"45–60 min","notes":"Molt a prop de les galeries comercials Teramachi i Shinkyogoku.","apple":"https://maps.apple.com/?ll=35.005,135.7649&q=Mercat%20de%20Nishiki","google":"https://www.google.com/maps/search/?api=1&query=35.005,135.7649","wiki":null},{"id":"teramachi-shinkyogoku","group":"dia3","order":32,"name":"Teramachi i Shinkyogoku (shotengai)","cat":"Compres","tags":["Compres"],"desc":"Dues galeries comercials cobertes i paral·leles, plenes de botigues de quimonos, te, artesania i algun petit temple pel camí; surten totes dues de l'avinguda Shijo, molt a prop del mercat de Nishiki.","address":"Teramachi-dori i Shinkyogoku-dori, Nakagyo-ku, Kyoto","hours":"Aprox. 10:00–20:00","duration":"30–45 min","notes":"Ideal per completar la tarda del tercer dia amb una mica de compres cobertes (útil si plou).","apple":"https://maps.apple.com/?ll=35.0037,135.7674&q=Teramachi%20i%20Shinkyogoku%20(shotengai)","google":"https://www.google.com/maps/search/?api=1&query=35.0037,135.7674","wiki":null},{"id":"daimonji","group":"senderisme","order":33,"name":"Mont Daimonji (ruta Higashiyama)","cat":"Natura","tags":["Natura"],"desc":"Muntanya on cada agost s'encén el famós foc del festival Daimonji (Gozan no Okuribi) amb la forma del kanji «gran» (大). El sender hi passa just al costat de les fogueres i continua fins al mont Hiei.","address":"Sakyo-ku, Kyoto (accés des de Ginkaku-ji)","hours":"Sender obert 24h (sense il·luminació nocturna)","duration":"2–3 h (pujada i baixada)","notes":"Forma part del tram 2 de la ruta «Higashiyama» del Sendero Circular de Kyoto (des de la cuesta Keague fins al mont Hiei), més exigent que el tram 1 (Fushimi Inari–cuesta Keague).","apple":"https://maps.apple.com/?ll=35.0278,135.7975&q=Mont%20Daimonji%20(ruta%20Higashiyama)","google":"https://www.google.com/maps/search/?api=1&query=35.0278,135.7975","wiki":null},{"id":"enryakuji","group":"senderisme","order":34,"name":"Enryaku-ji (mont Hiei)","cat":"Temple","tags":["Temple"],"desc":"Gran complex de temples budistes al cim del mont Hiei, escenari històric d'enfrontaments entre monjos guerrers (sohei) i el shogunat. Punt final de la ruta de senderisme «Higashiyama» i inici de la ruta «Kitayama Est».","address":"4220 Sakamotohonmachi, Otsu, Shiga (accés també des de Kyoto)","hours":"8:30–16:30 aprox. (varia amb l'estació)","duration":"2–3 h","notes":"S'hi pot pujar també amb funicular/telefèric des de Kyoto sense necessitat de fer tot el sender a peu.","apple":"https://maps.apple.com/?ll=35.0716,135.8404&q=Enryaku-ji%20(mont%20Hiei)","google":"https://www.google.com/maps/search/?api=1&query=35.0716,135.8404","wiki":null},{"id":"ohara","group":"senderisme","order":35,"name":"Ohara (Sanzen-in i Jakko-in)","cat":"Excursió","tags":["Excursió"],"desc":"Poble de muntanya al nord de Kyoto amb dos temples preciosos, especialment recomanats a la tardor pel momiji. S'hi arriba en autobús (~1 h des de l'estació de Kyoto) o caminant des del mont Hiei per la ruta «Kitayama Est».","address":"Ohara, Sakyo-ku, Kyoto","hours":"9:00–17:00 aprox. (temples)","duration":"Mig dia (com a excursió) o etapa de senderisme","notes":"Els amfitrions no hi van poder anar en un viatge de novembre per manca de temps i perquè, en ser zona de muntanya, el momiji ja hi havia acabat quan hi van arribar; cal consultar el mapa de previsió del momiji abans d'anar-hi.","apple":"https://maps.apple.com/?ll=35.1177,135.8319&q=Ohara%20(Sanzen-in%20i%20Jakko-in)","google":"https://www.google.com/maps/search/?api=1&query=35.1177,135.8319","wiki":null},{"id":"atago-jinja","group":"senderisme","order":36,"name":"Santuari Atago","cat":"Santuari","tags":["Santuari"],"desc":"Santuari famós pels seus amulets contra el foc per a les cuines (sortia a la sèrie «Makanai»); és el final de la ruta «Kitayama Oest» i l'inici de la ruta «Nishiyama» del Sendero Circular de Kyoto.","address":"1 Sagamandaracho, Ukyo-ku, Kyoto (cim del mont Atago)","hours":"Recinte obert de dia; pujada llarga i exigent","duration":"3–4 h (pujada i baixada des de Kiyotaki)","notes":"Zona de muntanya amb transport molt limitat; la parada d'autobús més propera és «Kiyotaki». Ruta exigent, no recomanada sense bona forma física.","apple":"https://maps.apple.com/?ll=35.0611,135.6417&q=Santuari%20Atago","google":"https://www.google.com/maps/search/?api=1&query=35.0611,135.6417","wiki":null},{"id":"daigoji","group":"excursions","order":37,"name":"Daigo-ji","cat":"Temple","tags":["Temple"],"desc":"Un dels grans temples de Kyoto, amb un estany i una pagodeta que és la imatge més típica del momiji a Kyoto. El complex s'estén per tot el vessant del mont Daigo fins al cim.","address":"22 Daigo Higashiojicho, Fushimi-ku, Kyoto","hours":"9:00–17:00 (hivern fins 16:30)","duration":"2–3 h (visita completa, inclou pujada al mont Daigo)","notes":"Els amfitrions recomanen arribar-hi a les 9:00 (obertura) per veure primer l'estany amb poca gent i després explorar amb calma la resta del complex, molt més gran del que sembla.","apple":"https://maps.apple.com/?ll=34.9514,135.8215&q=Daigo-ji","google":"https://www.google.com/maps/search/?api=1&query=34.9514,135.8215","wiki":null},{"id":"kuramadera","group":"excursions","order":38,"name":"Kurama-dera","cat":"Temple","tags":["Temple"],"desc":"Temple de muntanya al nord de Kyoto, accessible amb un petit tren des de Kyoto/Demachiyanagi que travessa un «túnel de momiji» il·luminat a la tardor. Zona amb bosc espectacular en qualsevol època (verds elèctrics a l'estiu, colors a la tardor).","address":"1074 Kuramahonmachi, Sakyo-ku, Kyoto","hours":"9:00–16:30 aprox.","duration":"1,5–2 h","notes":"L'onsen de Kurama porta anys tancat (comproveu l'estat actual). Es pot combinar amb una caminada fins al santuari Kifune.","apple":"https://maps.apple.com/?ll=35.1214,135.7727&q=Kurama-dera","google":"https://www.google.com/maps/search/?api=1&query=35.1214,135.7727","wiki":null},{"id":"kifune","group":"excursions","order":39,"name":"Santuari Kifune","cat":"Santuari","tags":["Santuari"],"desc":"Santuari famós per la seva escalinata amb fanalets vermells, i pels menjars servits sobre plataformes (kawadoko) damunt el riu a l'estiu, amb l'aigua corrent per sota per refrescar l'ambient.","address":"180 Kuramakibunecho, Sakyo-ku, Kyoto","hours":"9:00–17:00 aprox.","duration":"45–60 min","notes":"S'hi arriba caminant des de Kurama (uns 30 min) o directament amb autobús/tren des de Kyoto. Recomanable el «kuzukiri» local, un dolç fet amb kudzu.","apple":"https://maps.apple.com/?ll=35.1256,135.7657&q=Santuari%20Kifune","google":"https://www.google.com/maps/search/?api=1&query=35.1256,135.7657","wiki":null},{"id":"kitano-tenmangu","group":"excursions","order":49,"name":"Santuari Kitano Tenmangu","cat":"Santuari","tags":["Santuari"],"desc":"Un dels santuaris preferits dels amfitrions, situat al tranquil barri de geishes de Kamishichiken. Té un jardí de momiji que només s'obre (amb il·luminació nocturna) durant la temporada de tardor.","address":"931 Bakuro-cho, Kamigyo-ku, Kyoto","hours":"5:00–18:00 aprox.; jardí de momiji obert només en temporada (entrada especial)","duration":"45–60 min","notes":"També acull un mercat mensual el dia 25 de cada mes (Tenjin-san), amb antiguitats, ceràmica i quimonos de segona mà a bon preu.","apple":"https://maps.apple.com/?ll=35.0298,135.7391&q=Santuari%20Kitano%20Tenmangu","google":"https://www.google.com/maps/search/?api=1&query=35.0298,135.7391","wiki":null}],"obs":["Dates del momiji: als episodis més antics es parla de mitjans de novembre com a moment àlgid a Kyoto/Tòquio/Osaka; als episodis més recents els amfitrions constaten que el pic s'ha anat endarrerint cap a finals de novembre i, en alguns casos, fins i tot cap a la primera quinzena de desembre. Consulteu sempre el mapa de previsió de l'Agència Meteorològica del Japó abans del viatge, ja que varia cada any.","Reserva del temple Saiho-ji (Kokedera): tradicionalment calia reservar per correu postal en japonès (inviable des de l'estranger); alguns hotels gestionen ara la reserva als seus clients. Comproveu el procediment vigent.","Castell de Nijo: es va esmentar com a possible incorporació a l'itinerari de 3 dies a Kyoto però finalment els amfitrions no el van incloure per manca de temps; no apareix, doncs, com a parada fixa d'aquest itinerari, tot i ser un dels grans llocs Patrimoni de la Humanitat de la ciutat.","Alguns punts esmentats de passada als podcasts (petits santuaris o temples sense nom clar, transcrits fonèticament, com un possible «santuari Oigua/Gokonomiya» a la zona de Fushimi) s'han deixat fora d'aquest recull per no poder confirmar-ne el nom i l'adreça exactes amb prou seguretat; recomanem el mapa oficial del «Sendero Circular de Kyoto» de Japonismo per a aquests trams menys coneguts.","Horaris: la majoria de temples i santuaris tanquen entre les 16:30 i les 17:30 i moltes botigues i centres comercials subterranis (depachika/chikagai) tanquen cap a les 20:00-21:00; en temporada de momiji alguns llocs (Eikan-do, Kodai-ji, Kitano Tenmangu, Rikugien...) obren addicionalment de nit amb il·luminacions especials i entrada a part."],"routeUrl":"https://www.google.com/maps/dir/34.9671,135.7727/34.9394,135.7708/34.9767,135.7737/34.9949,135.785/34.9948,135.7853/34.9975,135.7807/34.9986,135.7795/35.0016,135.7807/35.0037,135.7788/35.0044,135.7809/35.0053,135.7822/35.01,135.783/35.0161,135.7822/35.0394,135.7292/35.0345,135.7183/35.0318,135.7139/35.0156,135.6773/35.0169,135.6717/35.0159,135.6741/35.0111,135.6778/35.0092,135.6775/35.025,135.666/35.027,135.665/35.0292,135.666/35.0247,135.6656/34.9988,135.6787/35.027,135.7982/35.018,135.795/35.0159,135.7936/35.0117,135.7933/35.005,135.7649/35.0037,135.7674/35.0278,135.7975/35.0716,135.8404/35.1177,135.8319/35.0611,135.6417/34.9514,135.8215/35.1214,135.7727/35.1256,135.7657/35.0298,135.7391"}}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const CITY_META = {
+  tokyo:{label:'Tòquio', icon:'🗼'},
+  kyoto:{label:'Kyoto', icon:'⛩️'},
+  osaka:{label:'Osaka', icon:'🐙'}
+};
+const CITIES = ['kyoto'];
+const STORAGE_PREFIX = 'japo_itinerari_visitats_';
+
+const state = {};
+CITIES.forEach(city=>{
+  state[city] = {
+    search:'', group:'all', cat:'all', hideVisited:false,
+    visited: new Set(JSON.parse(localStorage.getItem(STORAGE_PREFIX+city) || '[]'))
+  };
+});
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(city){ localStorage.setItem(STORAGE_PREFIX+city, JSON.stringify([...state[city].visited])); }
+
+function buildPanelSkeleton(city){
+  const meta = CITY_META[city];
+  const cats = [...new Set(DATA[city].places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA[city].groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' · ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  return `
+  <section class="panel-body${city===CITIES[0]?' active':''}" id="panel-${city}" data-city="${city}">
+    <div class="routebar">
+      <a class="routebtn" href="${DATA[city].routeUrl}" target="_blank" rel="noopener">🗺️ Ruta completa de ${meta.label} a Google Maps (${DATA[city].places.length} parades)</a>
+      <span class="routenote">Google Maps limita el nombre de parades per ruta; si no les carrega totes, obre-la igualment i completa la resta amb els botons de cada lloc.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca a ${meta.label}: lloc, barri, nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els dies/blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div class="js-groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA[city].obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  </section>`;
+}
+
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(city, p, idx){
+  const done = state[city].visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${idx+1}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(city){
+  const el = document.querySelector(`#panel-${city} .js-groups`);
+  const groups = DATA[city].groups;
+  let html = '';
+  groups.forEach(g=>{
+    const placesInGroup = DATA[city].places.filter(p=>p.group===g.id);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map((p,i)=>placeCard(city,p,i)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(city){
+  const s = state[city];
+  const panel = document.getElementById(`panel-${city}`);
+  const places = panel.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state[city].visited.has(id);
+    let ok = true;
+    if(s.search && !hay.includes(s.search)) ok = false;
+    if(s.group!=='all' && group!==s.group) ok = false;
+    if(s.cat!=='all' && cat!==s.cat.toLowerCase()) ok = false;
+    if(s.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  panel.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  panel.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA[city].places.length;
+  const doneCount = state[city].visited.size;
+  panel.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  panel.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  panel.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePanel(city){
+  const panel = document.getElementById(`panel-${city}`);
+  panel.querySelector('.js-search').addEventListener('input', e=>{ state[city].search = e.target.value.trim().toLowerCase(); applyFilters(city); });
+  panel.querySelector('.js-group').addEventListener('change', e=>{ state[city].group = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-cat').addEventListener('change', e=>{ state[city].cat = e.target.value; applyFilters(city); });
+  panel.querySelector('.js-hide').addEventListener('click', e=>{
+    state[city].hideVisited = !state[city].hideVisited;
+    e.target.classList.toggle('on', state[city].hideVisited);
+    e.target.setAttribute('aria-pressed', String(state[city].hideVisited));
+    applyFilters(city);
+  });
+  panel.addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const s = state[city];
+    if(s.visited.has(id)) s.visited.delete(id); else s.visited.add(id);
+    saveVisited(city);
+    const card = btn.closest('.place');
+    const done = s.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters(city);
+  });
+}
+
+function initCity(city){
+  renderGroups(city);
+  wirePanel(city);
+  applyFilters(city);
+}
+
+// build all panels
+const panelsRoot = document.getElementById('panels');
+CITIES.forEach(city=>{ panelsRoot.insertAdjacentHTML('beforeend', buildPanelSkeleton(city)); });
+CITIES.forEach(initCity);
+
+// tabs
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tabbtn');
+  if(!btn) return;
+  const city = btn.dataset.city;
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b===btn));
+  document.querySelectorAll('.panel-body').forEach(p=>p.classList.toggle('active', p.dataset.city===city));
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>

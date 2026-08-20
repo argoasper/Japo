@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Itinerari Himeji — El castell de la Garça Blanca</title>
+<style>
+:root{
+  --bg:#f6f2ea; --card:#fffaf3; --card2:#fbf3e6; --text:#211c17; --muted:#6b6055;
+  --line:#e5d8c6; --shadow:0 10px 30px rgba(60,40,18,.10); --radius:16px;
+  --accent:#a3312c; --accent-ink:#fff; --ok:#2f8a4d;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#100f0e; --card:#1b1815; --card2:#241f19; --text:#f2e8dc; --muted:#b6a998; --line:#352c22; --shadow:0 10px 30px rgba(0,0,0,.4); --ok:#59c579;}
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+header.hero{padding:18px 2px 14px}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+h1{font-size:clamp(1.5rem,4vw,2.3rem);line-height:1.1;margin:.25em 0 .2em}
+.subtitle{color:var(--muted);font-size:.95rem;max-width:760px;margin:0}
+
+.routebar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:16px 0 14px}
+.routebtn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.86rem;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow)}
+.routebtn:hover{text-decoration:none;filter:brightness(1.06)}
+.routenote{color:var(--muted);font-size:.76rem}
+
+.toolbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.controls{display:grid;grid-template-columns:1.3fr 1fr 1fr auto;gap:8px}
+input,select,button{font:inherit;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--card);color:var(--text)}
+button{cursor:pointer;font-weight:700}
+.toggle{white-space:nowrap}
+.toggle.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.progressbox{display:grid;gap:6px;margin-top:10px}
+.progressrow{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem}
+.bar{height:8px;background:var(--card2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;background:var(--accent);transition:.25s}
+
+.group-section{margin:0 0 22px}
+.group-head{margin:0 0 8px}
+.group-head h2{margin:0;font-size:1.05rem;color:var(--accent)}
+.group-head .sub{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+
+.places{display:grid;gap:10px}
+.place{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.place.hidden{display:none}
+.place.done{opacity:.55}
+.num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:.85rem;flex:none}
+.place.done .num{background:var(--ok)}
+.place h3{margin:0 0 2px;font-size:1rem}
+.catpill{display:inline-block;font-size:.72rem;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, var(--card2));border-radius:999px;padding:2px 8px;margin:2px 0 6px}
+.prioritypill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px;margin:2px 0 6px 6px}
+.prioritypill.alta{color:#a3312c;background:color-mix(in srgb, #a3312c 14%, var(--card2))}
+.prioritypill.mitjana{color:#9c7a1f;background:color-mix(in srgb, #b9902f 16%, var(--card2))}
+.prioritypill.baixa{color:#2f8a4d;background:color-mix(in srgb, #2f8a4d 14%, var(--card2))}
+.desc{margin:0 0 6px;font-size:.9rem}
+.meta-line{margin:0 0 6px;font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta-line span b{color:var(--text);font-weight:600}
+.notes{margin:0 0 8px;padding:6px 9px;border-left:2px solid var(--accent);background:var(--card2);border-radius:0 8px 8px 0;font-size:.8rem;color:var(--text)}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.actions a,.actions button{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card2);font-size:.78rem;font-weight:700}
+.actions .complete{background:color-mix(in srgb, var(--ok) 16%, var(--card));}
+.place.done .actions .complete{background:var(--ok);color:#fff;border-color:var(--ok)}
+
+.obs{margin-top:24px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.obs h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+.obs ul{margin:0;padding-left:18px;color:var(--muted);font-size:.85rem}
+.obs li{margin:4px 0}
+
+.empty{display:none;text-align:center;color:var(--muted);padding:26px}
+footer{color:var(--muted);padding:22px 2px;font-size:.8rem}
+
+@media (max-width:640px){
+  .controls{grid-template-columns:1fr 1fr}
+  .place{grid-template-columns:1fr}
+  .num{margin-bottom:-4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<div class="kicker">Basat en el pòdcast «Japón a fondo» (Japonismo) · guia interactiva autosuficient</div>
+<h1>🏯 Itinerari de Himeji — El castell de la Garça Blanca</h1>
+<p class="subtitle">Llocs extrets de l'episodi del pòdcast dedicat al castell de Himeji, fusionats i ampliats amb informació de japonismo.com i Viquipèdia. Els 6 primers punts formen la ruta principal a peu pel recinte del castell (ja optimitzada per proximitat); els 3 últims són excursions opcionals de mig dia amb transport propi.</p>
+</header>
+
+<div id="app"></div>
+
+<footer>Generat a partir de la transcripció del pòdcast sobre Himeji. Verifiqueu horaris, preus i reserves abans del viatge — alguns poden haver canviat.</footer>
+</div>
+
+<script id="app-data" type="application/json">
+{"groups":[{"id":"ruta","label":"Ruta principal · A peu pel recinte del castell","sub":"Estació de Himeji → Parc Shiro Midai → Senhime no Komichi → Jardins Koko-en → Castell de Himeji → Museu d'Art → Museu d'Història (≈2,2 km a peu, ordre optimitzat)"},{"id":"excursions","label":"Excursions opcionals · Mig dia fora del centre","sub":"Cadascuna és una sortida independent d'anada i tornada des de l'estació/port, amb el seu propi transport"}],
+"places":[
+{"id":"parc-shiromidai","group":"ruta","order":1,"name":"Parc Shiro Midai","cat":"mirador","priority":"mitjana","tags":["mirador","fotografia","gratuït","shachihoko"],"desc":"Petit parc a l'avinguda Otemae, abans d'entrar al recinte del castell, amb una escultura de dos Shachihoko (l'animal mitològic amb cap de tigre i cos de carpa) que emmarquen el castell de fons. El pòdcast el recomana perquè, girant a la dreta en lloc d'anar directes a l'entrada, queda molt més buit que la resta de la zona.","address":"Otemae-dori, Himeji, Hyōgo","hours":"Accés lliure, sense horari fix","duration":"20-30 min","notes":"Feu-hi parada durant la volta en sentit antihorari, abans d'entrar al castell; millor al matí, amb poca gent.","apple":"https://maps.apple.com/?q=Shiromidai+Park+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Shiromidai+Park+Himeji","wiki":null},
+{"id":"senhime-no-komichi","group":"ruta","order":2,"name":"Senhime no Komichi","cat":"passeig","priority":"mitjana","tags":["passeig","fossat","tranquil"],"desc":"Camí vora el fossat occidental del castell, dedicat a la princesa Senhime (filla del segon shogun Tokugawa i néta de Tokugawa Ieyasu), que hi va viure deu anys. Té el fossat a un costat, el castell a l'altre i edificis tradicionals a la dreta: un dels racons més tranquils dels voltants, perquè la majoria de turistes van directes a l'entrada principal.","address":"Nishi-no-maru, Himeji, Hyōgo","hours":"Accés lliure, sense horari fix","duration":"30-45 min","notes":"Feu-lo després de Shiro Midai i abans dels jardins Koko-en; bona llum al matí o a la tarda.","apple":"https://maps.apple.com/?q=Senhime+no+Komichi+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Senhime+no+Komichi+Himeji","wiki":null},
+{"id":"jardins-kokoen","group":"ruta","order":3,"name":"Jardins Koko-en","cat":"parc","priority":"alta","tags":["jardí","imprescindible","primavera","tardor"],"desc":"Nou jardins tradicionals diferents (3,5 ha) construïts el 1992 al lloc exacte de l'antiga residència de l'oest del castell, cadascun amb el seu propi estil, separats per portes emmurallades. El pòdcast recomana comprar aquí l'entrada combinada amb el castell perquè sol haver-hi molta menys cua que a la taquilla principal.","address":"68 Honmachi, Himeji, Hyōgo 670-0012","hours":"9:00-17:00 (fins a les 18:00 d'abril a setembre); tancat 29-30 desembre","duration":"1-1,5 h","notes":"Compreu-hi l'entrada conjunta amb el castell (300 ¥ / combinada 1.040 ¥); la casa de te ofereix matcha amb dolç per 500 ¥.","apple":"https://maps.apple.com/?q=Koko-en+Garden+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Koko-en+Garden+Himeji","wiki":"https://en.wikipedia.org/wiki/K%C5%8Dko-en"},
+{"id":"castell-himeji","group":"ruta","order":4,"name":"Castell de Himeji","cat":"monument","priority":"alta","tags":["castell","imprescindible","unesco","tresor nacional"],"desc":"El castell més espectacular del Japó i visita imprescindible: Patrimoni de la Humanitat (UNESCO, 1993), un dels 12 castells originals que resten dempeus i conegut com la «Garça Blanca» pel color dels murs. Disseny defensiu laberíntic amb portes, passadissos i murs amb troneres, torre principal (Tenshu) de 46,4 m i 6 plantes, i un petit santuari dalt de tot dedicat a Osakabe Myojin. Cap bomba de la Segona Guerra Mundial hi va arribar a explotar.","address":"68 Honmachi, Himeji, Hyōgo 670-0012","hours":"9:00-16:00 (fins a les 17:00 d'abril a agost); tancat 29-30 desembre","duration":"2-3 h","notes":"Cal descalçar-se a l'interior (us donen una bossa per a les sabates); entrada 1.000 ¥, combinada amb Koko-en 1.040-1.050 ¥. Aneu-hi a primera hora o a la primavera per la floració dels cirerers.","apple":"https://maps.apple.com/?q=Himeji+Castle","google":"https://www.google.com/maps/search/?api=1&query=Himeji+Castle","wiki":"https://en.wikipedia.org/wiki/Himeji_Castle"},
+{"id":"museu-art-himeji","group":"ruta","order":5,"name":"Museu d'Art de Himeji","cat":"museu","priority":"baixa","tags":["museu","art","fotografia"],"desc":"Museu proper al castell amb un pati on hi ha diverses obres d'art exposades enmig dels jardins, amb el castell al fons: una bona combinació d'art contemporani i arquitectura del període Edo.","address":"68-25 Honmachi, Himeji, Hyōgo","hours":"No indicat als arxius","duration":"1-1,5 h","notes":"Combineu-lo amb el Museu d'Història de la Prefectura de Hyogo, que hi és molt a prop.","apple":"https://maps.apple.com/?q=Himeji+City+Museum+of+Art","google":"https://www.google.com/maps/search/?api=1&query=Himeji+City+Museum+of+Art","wiki":null},
+{"id":"museu-historia-hyogo","group":"ruta","order":6,"name":"Museu d'Història de la Prefectura de Hyogo","cat":"museu","priority":"baixa","tags":["museu","història","cafeteria"],"desc":"Museu obert el 1983 al nord-est del castell, amb més de 200.000 peces sobre la història de la regió. Té una cafeteria enganxada literalment al castell des d'on es veu genial, i un finestral exterior de vidre que el reflecteix d'una manera molt fotogènica.","address":"68 Honmachi, Himeji, Hyōgo 670-0012","hours":"No indicat als arxius","duration":"1-1,5 h","notes":"Bona parada a mig matí per fer una pausa amb vistes al castell des de la cafeteria.","apple":"https://maps.apple.com/?q=Hyogo+Prefectural+Museum+of+History","google":"https://www.google.com/maps/search/?api=1&query=Hyogo+Prefectural+Museum+of+History","wiki":"https://en.wikipedia.org/wiki/Hy%C5%8Dgo_Prefectural_Museum_of_History"},
+{"id":"mont-shosha-engyoji","group":"excursions","order":7,"name":"Mont Shosha i temple Engyo-ji","cat":"temple","priority":"mitjana","tags":["temple","natura","telefèric","last samurai"],"desc":"Temple de fusta amb més de mil anys d'antiguitat (fundat el 966), en plena natura, a només 30 minuts en transport públic des de l'estació de Himeji. Es puja amb telefèric i va ser escenari de la pel·lícula «El darrer samurai», amb Ken Watanabe i Tom Cruise.","address":"2968 Shoshasan, Himeji, Hyōgo","hours":"Telefèric des de les 8:30 h, cada 15 min","duration":"3-4 h (mig dia, amb desplaçament)","notes":"Autobús núm. 8 de Shinki Bus (dàrsena 10 de l'estació, ~30 min) fins a Shoshazan Ropeway; millor a la tardor o primavera.","apple":"https://maps.apple.com/?q=Engyoji+Temple+Mount+Shosha+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Engyoji+Temple+Mount+Shosha+Himeji","wiki":"https://en.wikipedia.org/wiki/Engy%C5%8D-ji"},
+{"id":"illa-ieshima","group":"excursions","order":8,"name":"Illa de Ieshima","cat":"activitat","priority":"baixa","tags":["illa","vaixell","japó rural","mar interior de seto"],"desc":"Illa d'un arxipèlag de 727 illes del Mar Interior de Seto, a 20-35 minuts en vaixell des del port de Himeji. Té carrerons laberíntics amb cases tradicionals, un ambient rural molt característic, esports aquàtics i la roca Dongamesan amb forma de tortuga, a la qual, segons la llegenda, si li dones cent copets al cap se't compleix un desig.","address":"Ieshima, Himeji, Hyōgo","hours":"No indicat als arxius","duration":"Mig dia","notes":"Bona opció per allunyar-se de les rutes turístiques habituals; millor a l'estiu per a les activitats aquàtiques.","apple":"https://maps.apple.com/?q=Ieshima+Island+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Ieshima+Island+Himeji","wiki":"https://en.wikipedia.org/wiki/Ieshima,_Hy%C5%8Dgo"},
+{"id":"nada-kenka-matsuri","group":"excursions","order":9,"name":"Nada no Kenka Matsuri","cat":"activitat","priority":"mitjana","tags":["festival","estacional","14 octubre","15 octubre"],"desc":"Considerat el festival de lluita més impressionant del Japó: diferents grups d'homes, gairebé en taparrabos, es baten amb els seus mikoshi (altars portàtils) al santuari Matsubara Hachiman per veure quin grup guanya. Hi corre el sake sense parar i no hi ha barreres clares entre participants i espectadors.","address":"Santuari Matsubara Hachiman, Shirahama-cho, Himeji, Hyōgo","hours":"14 i 15 d'octubre (batalles principals: tarda del 14 i migdia del 15)","duration":"Mig dia","notes":"Trieu bé des d'on mirar: hi ha zones tranquil·les i d'altres on és fàcil rebre algun cop accidental d'un participant.","apple":"https://maps.apple.com/?q=Matsubara+Hachiman+Shrine+Himeji","google":"https://www.google.com/maps/search/?api=1&query=Matsubara+Hachiman+Shrine+Himeji","wiki":null}
+],
+"obs":["Els llocs corresponen a la transcripció del pòdcast «Japón a fondo» (Japonismo) sobre Himeji; les mencions repetides del mateix lloc s'han fusionat en una sola fitxa.","Quan no hi havia horaris concrets a les fonts consultades, s'ha marcat com «No indicat als arxius»; cal revisar les webs oficials abans de la visita.","L'ordre dels punts 1-6 (ruta principal) s'ha optimitzat per proximitat a peu amb un algorisme de veí més proper + millora 2-opt; les tres excursions es visiten per separat, cadascuna amb el seu propi mitjà de transport des de l'estació.","El castell tanca a les 16:00-17:00 h segons l'època: no deixeu la visita per a mitja tarda."],
+"routeUrl":"https://www.google.com/maps/dir/34.82764,134.69085/34.83205,134.69355/34.83755,134.69015/34.83806,134.68972/34.83944,134.69389/34.84045,134.69695/34.84205,134.69625"}
+</script>
+
+<script>
+const DATA = JSON.parse(document.getElementById('app-data').textContent);
+const STORAGE_KEY = 'himeji_itinerari_visitats';
+
+const state = {
+  search:'', group:'all', cat:'all', hideVisited:false,
+  visited: new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'))
+};
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function saveVisited(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...state.visited])); }
+function isKnown(v){ return v && !/^no indica/i.test(v.trim()); }
+
+function metaLine(p){
+  const parts = [];
+  if(isKnown(p.address)) parts.push(`<span>📍 <b>${esc(p.address)}</b></span>`);
+  if(isKnown(p.hours)) parts.push(`<span>🕐 ${esc(p.hours)}</span>`);
+  if(isKnown(p.duration)) parts.push(`<span>⏱ ${esc(p.duration)}</span>`);
+  return parts.length ? `<div class="meta-line">${parts.join('')}</div>` : '';
+}
+
+function placeCard(p){
+  const done = state.visited.has(p.id);
+  const links = [];
+  if(p.google) links.push(`<a href="${p.google}" target="_blank" rel="noopener">Google Maps</a>`);
+  if(p.apple) links.push(`<a href="${p.apple}" target="_blank" rel="noopener">Apple Maps</a>`);
+  if(p.wiki) links.push(`<a href="${p.wiki}" target="_blank" rel="noopener">Viquipèdia</a>`);
+  links.push(`<button class="complete js-complete" data-id="${esc(p.id)}">${done?'✓ Visitat':'Marca com a visitat'}</button>`);
+  return `
+  <article class="place${done?' done':''}" data-id="${esc(p.id)}" data-group="${esc(p.group)}" data-cat="${esc((p.cat||'').toLowerCase())}" data-search="${esc((p.name+' '+(p.desc||'')+' '+(p.address||'')+' '+(p.notes||'')+' '+(p.tags||[]).join(' ')).toLowerCase())}">
+    <div class="num">${p.order}</div>
+    <div>
+      <span class="catpill">${esc(p.cat||'')}</span><span class="prioritypill ${esc(p.priority||'')}">${p.priority==='alta'?'🔴':p.priority==='mitjana'?'🟡':'🟢'} ${esc(p.priority||'')}</span>
+      <h3>${esc(p.name)}</h3>
+      <p class="desc">${esc(p.desc||'')}</p>
+      ${metaLine(p)}
+      ${p.notes?`<p class="notes">${esc(p.notes)}</p>`:''}
+      <div class="actions">${links.join('')}</div>
+    </div>
+  </article>`;
+}
+
+function renderGroups(){
+  const el = document.getElementById('groups');
+  let html = '';
+  DATA.groups.forEach(g=>{
+    const placesInGroup = DATA.places.filter(p=>p.group===g.id).sort((a,b)=>a.order-b.order);
+    if(!placesInGroup.length) return;
+    html += `<section class="group-section" data-group="${esc(g.id)}">
+      <div class="group-head"><h2>${esc(g.label)}</h2>${g.sub?`<p class="sub">${esc(g.sub)}</p>`:''}</div>
+      <div class="places">${placesInGroup.map(p=>placeCard(p)).join('')}</div>
+    </section>`;
+  });
+  el.innerHTML = html;
+}
+
+function applyFilters(){
+  const places = document.querySelectorAll('.place');
+  let visible = 0;
+  places.forEach(el=>{
+    const id = el.dataset.id;
+    const group = el.dataset.group;
+    const cat = el.dataset.cat;
+    const hay = el.dataset.search;
+    const isDone = state.visited.has(id);
+    let ok = true;
+    if(state.search && !hay.includes(state.search)) ok = false;
+    if(state.group!=='all' && group!==state.group) ok = false;
+    if(state.cat!=='all' && cat!==state.cat.toLowerCase()) ok = false;
+    if(state.hideVisited && isDone) ok = false;
+    el.classList.toggle('hidden', !ok);
+    if(ok) visible++;
+  });
+  document.querySelectorAll('.group-section').forEach(sec=>{
+    const anyVisible = [...sec.querySelectorAll('.place')].some(p=>!p.classList.contains('hidden'));
+    sec.style.display = anyVisible ? '' : 'none';
+  });
+  document.querySelector('.js-empty').style.display = visible===0 ? 'block' : 'none';
+
+  const total = DATA.places.length;
+  const doneCount = state.visited.size;
+  document.querySelector('.js-progress-text').textContent = `${doneCount} de ${total} completats`;
+  document.querySelector('.js-visible-text').textContent = `${visible} visibles`;
+  document.querySelector('.js-fill').style.width = total ? (doneCount/total*100)+'%' : '0%';
+}
+
+function wirePage(){
+  document.querySelector('.js-search').addEventListener('input', e=>{ state.search = e.target.value.trim().toLowerCase(); applyFilters(); });
+  document.querySelector('.js-group').addEventListener('change', e=>{ state.group = e.target.value; applyFilters(); });
+  document.querySelector('.js-cat').addEventListener('change', e=>{ state.cat = e.target.value; applyFilters(); });
+  document.querySelector('.js-hide').addEventListener('click', e=>{
+    state.hideVisited = !state.hideVisited;
+    e.target.classList.toggle('on', state.hideVisited);
+    e.target.setAttribute('aria-pressed', String(state.hideVisited));
+    applyFilters();
+  });
+  document.getElementById('groups').addEventListener('click', e=>{
+    const btn = e.target.closest('.js-complete');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    if(state.visited.has(id)) state.visited.delete(id); else state.visited.add(id);
+    saveVisited();
+    const card = btn.closest('.place');
+    const done = state.visited.has(id);
+    card.classList.toggle('done', done);
+    btn.textContent = done ? '✓ Visitat' : 'Marca com a visitat';
+    applyFilters();
+  });
+}
+
+function buildSkeleton(){
+  const cats = [...new Set(DATA.places.map(p=>p.cat).filter(Boolean))].sort();
+  const groupOptions = DATA.groups.map(g=>`<option value="${g.id}">${esc(g.label.split(' · ')[0] || g.label)}</option>`).join('');
+  const catOptions = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="routebar">
+      <a class="routebtn" href="${DATA.routeUrl}" target="_blank" rel="noopener">🗺️ Ruta principal a peu a Google Maps (${DATA.places.filter(p=>p.group==='ruta').length} parades)</a>
+      <span class="routenote">Les excursions (mont Shosha, illa de Ieshima, festival) no hi són incloses: cadascuna té el seu propi botó de mapa a la fitxa.</span>
+    </div>
+    <div class="toolbar">
+      <div class="controls">
+        <input type="search" class="js-search" placeholder="Cerca un lloc, barri o nota…" autocomplete="off">
+        <select class="js-group"><option value="all">Tots els blocs</option>${groupOptions}</select>
+        <select class="js-cat"><option value="all">Totes les categories</option>${catOptions}</select>
+        <button class="js-hide toggle" aria-pressed="false">Amaga visitats</button>
+      </div>
+      <div class="progressbox">
+        <div class="progressrow"><span class="js-progress-text"></span><span class="js-visible-text"></span></div>
+        <div class="bar"><div class="fill js-fill"></div></div>
+      </div>
+    </div>
+    <div id="groups"></div>
+    <p class="empty js-empty">Cap resultat amb aquests filtres.</p>
+    <section class="obs">
+      <h2>Observacions</h2>
+      <ul>${DATA.obs.map(o=>`<li>${esc(o)}</li>`).join('')}</ul>
+    </section>
+  `;
+}
+
+buildSkeleton();
+renderGroups();
+wirePage();
+applyFilters();
+</script>
+</body>
+</html>
